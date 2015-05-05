@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/KortForsyningen" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
