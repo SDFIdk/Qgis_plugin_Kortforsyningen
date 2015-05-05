@@ -48,13 +48,7 @@ class KortForsyningen:
         self.settings = KFSettings()
         self.path = QFileInfo(os.path.realpath(__file__)).path()
 
-        # Check if we have stored settings, if so, load them.
         self.kf_path = self.path + '/kf/'
-        if os.path.exists(self.kf_path + 'kfs.txt'):
-            self.settings.setValue('remember_settings', True)
-            with open(self.kf_path + 'kfs.txt', 'rU') as f:
-                self.settings.setValue('username', f.readline().strip())
-                self.settings.setValue('password', f.readline().strip())
 
         # Get json file with information about themes
         try:
@@ -229,14 +223,7 @@ class KortForsyningen:
         dlg = KFSettingsDialog(self.settings)
         dlg.setWidgetsFromValues()
         dlg.show()
-
-        # We get 1 if ok, 0 if cancel
-        success = dlg.exec_()
-        if success:
-            if self.settings.value('remember_settings'):
-                with open(self.kf_path + '/kfs.txt', 'w') as f:
-                    f.write(self.settings.value('username') + '\n')
-                    f.write(self.settings.value('password') + '\n')
+        dlg.exec_()
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
