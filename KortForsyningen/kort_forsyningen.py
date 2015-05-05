@@ -234,7 +234,7 @@ class KortForsyningen:
         success = dlg.exec_()
         if success:
             if self.settings.value('remember_settings'):
-                with open(self.path + '/kf/kfs.txt', 'w') as f:
+                with open(self.kf_path + '/kfs.txt', 'w') as f:
                     f.write(self.settings.value('username') + '\n')
                     f.write(self.settings.value('password') + '\n')
 
