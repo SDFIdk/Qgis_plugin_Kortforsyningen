@@ -62,19 +62,8 @@ class KortForsyningen:
         except URLError, e:
             print "URL Error:", e.reason, url
 
-        # initialize plugin directory
-        self.plugin_dir = os.path.dirname(__file__)
-
-        # Create the dialog (after translation) and keep reference
-        #self.dlg = KortForsyningenDialog()
-        #self.dlg = KFSettingsDialog()
-
         ## Declare instance attributes
         self.actions = []
-        #self.menu = self.tr(u'&Kort Forsyningen')
-        ## TODO: We are going to let the user set this up in a future iteration
-        #self.toolbar = self.iface.addToolBar(u'KortForsyningen')
-        #self.toolbar.setObjectName(u'KortForsyningen')
 
     def download_qgs_files(self, themes):
         for theme in themes:
@@ -227,6 +216,10 @@ class KortForsyningen:
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
+        # Remove settings if user not asked to keep them
+        if self.settings.value('remember_settings') is False:
+            self.settings.setValue('username', '')
+            self.settings.setValue('password', '')
         for action in self.actions:
             self.iface.removePluginMenu(
                 self.tr(u'&Kort Forsyningen'),
