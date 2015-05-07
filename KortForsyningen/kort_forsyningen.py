@@ -49,7 +49,7 @@ class KortForsyningen:
         self.path = QFileInfo(os.path.realpath(__file__)).path()
 
         self.kf_path = self.path + '/kf/'
-        self.version_file = self.kf_path + 'version.txt'
+        self.local_theme_file = self.kf_path + 'themes.json'
 
         # Check if we have a version, and act accordingly
         self.theme_file()
@@ -61,25 +61,32 @@ class KortForsyningen:
         themes_file = self.get_theme_file()
 
         if not self.check_remote_themes(themes_file):
-            self.themes = themes_file['themes']
-            print themes_file['version']
-            self.get_qgs_files(self.themes, themes_file['version'])
+            self.get_qgs_files(themes_file)
         else:
-            pass
+            self.themes = self.read_local_theme()
+            print type(self.themes)
             # here we need to populate self.themes with local data if we didnt
             # fint any remote.
 
     def check_remote_themes(self, remote_file):
         remote_version = remote_file['version']
-        print 'check_remote_themes'
 
-        if os.path.exists(self.version_file):
-            with open(self.version_file, 'rU') as f:
-                local_version = f.readline().strip()
+        if os.path.exists(self.local_theme_file):
+            with open(self.local_theme_file, 'rU') as f:
+                local_theme = f.read()
+                local_theme = json.loads(local_theme)
 
-            return int(local_version) == remote_version
+            return local_theme['version'] == remote_version
 
         return False
+
+    def read_local_theme(self):
+        with open(self.local_theme_file, 'rU') as f:
+            themes = f.read()
+
+        themes = json.loads(themes)
+        return themes['themes']
+
 
     def get_theme_file(self):
         try:
@@ -92,27 +99,29 @@ class KortForsyningen:
         except URLError, e:
             print "URL Error:", e.reason, url
 
-    def write_version_file(self, version):
+    def write_theme_file(self, response):
         """We only call this function IF we have a new version downloaded"""
         # Remove old versions file
-        if os.path.exists(self.version_file):
-            os.remove(self.version_file)
+        if os.path.exists(self.local_theme_file):
+            os.remove(self.local_theme_file)
 
         # Write new version
-        with open(self.version_file, 'w') as f:
-            f.write(version)
+        with open(self.local_theme_file, 'w') as f:
+            json.dump(response, f)
 
 
-    def get_qgs_files(self, themes, version):
-        for theme in themes:
+    def get_qgs_files(self, themes_file):
+        self.themes = themes_file['themes']
+        for theme in self.themes:
             url = theme['url']
             try:
                 f = urlopen(url)
-                with open(self.kf_path + url.rsplit('/',1)[-1], "wb") as local_file:
+                # Write the file as filename to kf_path
+                with open(self.kf_path + url.rsplit('/', 1)[-1], "wb") as local_file:
                     local_file.write(f.read())
 
                 # We download new files, write new version file
-                self.write_version_file(str(version))
+                self.write_theme_file(themes_file)
 
             except HTTPError, e:
                 # TODO: Maybe show a dialog?
@@ -180,7 +189,10 @@ class KortForsyningen:
         dlg = KFSettingsDialog(self.settings)
         dlg.setWidgetsFromValues()
         dlg.show()
-        dlg.exec_()
+        result = dlg.exec_()
+
+        if result == 1:
+            del dlg
 
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
