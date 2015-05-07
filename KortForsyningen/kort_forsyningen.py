@@ -23,6 +23,7 @@
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtCore import QFileInfo
 from PyQt4.QtGui import QAction, QIcon, QMenu
+from qgis.gui import QgsMessageBar
 # Initialize Qt resources from file resources.py
 import resources_rc
 from kort_forsyningen_settings import KFSettings, KFSettingsDialog
@@ -51,6 +52,9 @@ class KortForsyningen:
         self.kf_path = self.path + '/kf/'
         self.local_theme_file = self.kf_path + 'themes.json'
 
+        # List of error strings to be shown
+        self.error_list = []
+
         # Check if we have a version, and act accordingly
         self.theme_file()
 
@@ -64,9 +68,6 @@ class KortForsyningen:
             self.get_qgs_files(themes_file)
         else:
             self.themes = self.read_local_theme()
-            print type(self.themes)
-            # here we need to populate self.themes with local data if we didnt
-            # fint any remote.
 
     def check_remote_themes(self, remote_file):
         remote_version = remote_file['version']
@@ -124,11 +125,9 @@ class KortForsyningen:
                 self.write_theme_file(themes_file)
 
             except HTTPError, e:
-                # TODO: Maybe show a dialog?
-                print "HTTP Error:", e.code, url
+                self.error_list.append('HTTP Error: {} {}'.format(e.code, url))
             except URLError, e:
-                print "URL Error:", e.reason, url
-
+                self.error_list.append('URL Error: {} {}'.format(e.reason, url))
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -161,6 +160,7 @@ class KortForsyningen:
             theme_menu = QMenu()
             theme_menu.setObjectName(elem['url'])
             theme_menu.setTitle(self.tr(elem['name']))
+            print theme_menu.objectName()
             self.theme_menus.append(theme_menu)
 
         for menu in self.theme_menus:
@@ -183,6 +183,7 @@ class KortForsyningen:
         menu_bar.insertMenu(
             self.iface.firstRightStandardMenu().menuAction(), self.menu
         )
+
 
 
     def settings_dialog(self):
