@@ -8,7 +8,6 @@ class QgisProject():
     def __init__(self, filename):
         self.filename = filename
         self.projectpath = QFileInfo(os.path.realpath(filename)).path()
-
         xml = file(unicode(filename)).read()
         self.doc = QtXml.QDomDocument()
         self.doc.setContent(xml)
@@ -27,18 +26,10 @@ class QgisProject():
                     node = node.nextSibling()
 
     def _layer_from_legendnode(self, node):
-        print "_layer_fromlegendnode"
         element = node.toElement()
         # if legendlayer tag
         if node.nodeName() == "legendlayer":
             legendlayerfileElt = element.firstChild().firstChildElement("legendlayerfile")
             layerId = legendlayerfileElt.attribute("layerid")
             name = element.attribute("name")
-            return {"name":name, "layerId": layerId}
-
-
-print "HEJ"
-prj = QgisProject("/Users/asger/Code/qgis-kf-knappen/KortForsyningen/kf/hszwbXkPKt.qgs")
-for l in prj.layers():
-    print l
-
+            return {"name":name, "layerId": layerId, "file": self.filename}

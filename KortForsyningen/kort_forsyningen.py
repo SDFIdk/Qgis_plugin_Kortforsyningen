@@ -23,7 +23,9 @@
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtCore import QFileInfo
 from PyQt4.QtGui import QAction, QIcon, QMenu
+from PyQt4 import QtXml
 from qgis.gui import QgsMessageBar
+from qgis.core import *
 # Initialize Qt resources from file resources.py
 import resources_rc
 from kort_forsyningen_settings import KFSettings, KFSettingsDialog
@@ -31,7 +33,9 @@ import os.path
 from urllib2 import urlopen, URLError, HTTPError
 import json
 
-KF_FILES_URL = 'http://telling.xyz/uploads/FyfOyBvzU8.json'
+from project import QgisProject
+
+KF_FILES_URL = 'http://telling.xyz/uploads/zOS8jsemdT.json'
 
 class KortForsyningen:
     """QGIS Plugin Implementation."""
@@ -144,6 +148,34 @@ class KortForsyningen:
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('KortForsyningen', message)
 
+    # Taken directly from menu_from_project
+    def getFirstChildByTagNameValue(self, elt, tagName, key, value):
+        nodes = elt.elementsByTagName(tagName)
+        i = 0
+        while i < nodes.count():
+            node = nodes.at(i)
+            idNode = node.namedItem(key)
+            if idNode != None:
+                id = idNode.firstChild().toText().data()
+                # layer founds
+                if id == value:
+                    return node
+            i += 1
+        return None
+
+    def open_layer(self, filename, layerid):
+        """Opens the specified layerid"""
+        xml = file(unicode(filename)).read()
+        doc = QtXml.QDomDocument()
+        doc.setContent(xml)
+        node = self.getFirstChildByTagNameValue(
+            doc.documentElement(), 'maplayer', 'id', layerid
+        )
+        QgsProject.instance().read(node)
+        layer = QgsMapLayerRegistry.instance().mapLayer(layerid)
+        self.iface.legendInterface().refreshLayerSymbology(layer)
+        self.iface.legendInterface().moveLayer(layer, 0)
+        self.iface.legendInterface().refreshLayerSymbology(layer)
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
@@ -157,10 +189,20 @@ class KortForsyningen:
         # Add menu object for each theme
         self.theme_menus = []
         for elem in self.themes:
+            filename = elem['url'].rsplit('/', 1)[-1]
             theme_menu = QMenu()
-            theme_menu.setObjectName(elem['url'])
+            theme_menu.setObjectName(filename)
             theme_menu.setTitle(self.tr(elem['name']))
-            print theme_menu.objectName()
+            project = QgisProject(self.kf_path + filename)
+            helper = lambda _file, _layerId: lambda: self.open_layer(_file, _layerId)
+            for layer in project.layers():
+                action = QAction(
+                        self.tr(layer['name']), self.iface.mainWindow()
+                )
+                action.triggered.connect(
+                        helper(layer['file'], layer['layerId'])
+                )
+                theme_menu.addAction(action)
             self.theme_menus.append(theme_menu)
 
         for menu in self.theme_menus:
