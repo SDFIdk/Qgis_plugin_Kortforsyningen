@@ -49,29 +49,70 @@ class KortForsyningen:
         self.path = QFileInfo(os.path.realpath(__file__)).path()
 
         self.kf_path = self.path + '/kf/'
+        self.version_file = self.kf_path + 'version.txt'
 
-        # Get json file with information about themes
+        # Check if we have a version, and act accordingly
+        self.theme_file()
+
+        ## Declare instance attributes
+        self.actions = []
+
+    def theme_file(self):
+        themes_file = self.get_theme_file()
+
+        if not self.check_remote_themes(themes_file):
+            self.themes = themes_file['themes']
+            print themes_file['version']
+            self.get_qgs_files(self.themes, themes_file['version'])
+        else:
+            pass
+            # here we need to populate self.themes with local data if we didnt
+            # fint any remote.
+
+    def check_remote_themes(self, remote_file):
+        remote_version = remote_file['version']
+        print 'check_remote_themes'
+
+        if os.path.exists(self.version_file):
+            with open(self.version_file, 'rU') as f:
+                local_version = f.readline().strip()
+
+            return int(local_version) == remote_version
+
+        return False
+
+    def get_theme_file(self):
         try:
             response = urlopen(KF_FILES_URL)
             response = json.load(response)
-            self.themes = response['themes']
-            self.download_qgs_files(self.themes)
+            return response
         except HTTPError, e:
             # TODO: Maybe show a dialog?
             print "HTTP Error:", e.code, url
         except URLError, e:
             print "URL Error:", e.reason, url
 
-        ## Declare instance attributes
-        self.actions = []
+    def write_version_file(self, version):
+        """We only call this function IF we have a new version downloaded"""
+        # Remove old versions file
+        if os.path.exists(self.version_file):
+            os.remove(self.version_file)
 
-    def download_qgs_files(self, themes):
+        # Write new version
+        with open(self.version_file, 'w') as f:
+            f.write(version)
+
+
+    def get_qgs_files(self, themes, version):
         for theme in themes:
             url = theme['url']
             try:
                 f = urlopen(url)
                 with open(self.kf_path + url.rsplit('/',1)[-1], "wb") as local_file:
                     local_file.write(f.read())
+
+                # We download new files, write new version file
+                self.write_version_file(str(version))
 
             except HTTPError, e:
                 # TODO: Maybe show a dialog?
@@ -95,79 +136,6 @@ class KortForsyningen:
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
         return QCoreApplication.translate('KortForsyningen', message)
 
-
-    def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None):
-        """Add a toolbar icon to the toolbar.
-
-        :param icon_path: Path to the icon for this action. Can be a resource
-            path (e.g. ':/plugins/foo/bar.png') or a normal file system path.
-        :type icon_path: str
-
-        :param text: Text that should be shown in menu items for this action.
-        :type text: str
-
-        :param callback: Function to be called when the action is triggered.
-        :type callback: function
-
-        :param enabled_flag: A flag indicating if the action should be enabled
-            by default. Defaults to True.
-        :type enabled_flag: bool
-
-        :param add_to_menu: Flag indicating whether the action should also
-            be added to the menu. Defaults to True.
-        :type add_to_menu: bool
-
-        :param add_to_toolbar: Flag indicating whether the action should also
-            be added to the toolbar. Defaults to True.
-        :type add_to_toolbar: bool
-
-        :param status_tip: Optional text to show in a popup when mouse pointer
-            hovers over the action.
-        :type status_tip: str
-
-        :param parent: Parent widget for the new action. Defaults None.
-        :type parent: QWidget
-
-        :param whats_this: Optional text to show in the status bar when the
-            mouse pointer hovers over the action.
-
-        :returns: The action that was created. Note that the action is also
-            added to self.actions list.
-        :rtype: QAction
-        """
-
-        icon = QIcon(icon_path)
-        action = QAction(icon, text, parent)
-        action.triggered.connect(callback)
-        action.setEnabled(enabled_flag)
-
-        if status_tip is not None:
-            action.setStatusTip(status_tip)
-
-        if whats_this is not None:
-            action.setWhatsThis(whats_this)
-
-        if add_to_toolbar:
-            self.toolbar.addAction(action)
-
-        if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
-
-        self.actions.append(action)
-
-        return action
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
