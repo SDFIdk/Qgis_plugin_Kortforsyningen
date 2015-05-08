@@ -167,9 +167,23 @@ class KortForsyningen:
             i += 1
         return None
 
+    def replace_variables(self,text):
+        """
+        :param text: Input text
+        :return: text where variables has been replaced
+        """
+        # TODO: If settings are not set then show the settings dialog
+        replace_vars = {}
+        replace_vars["kf_username"] = self.settings.value('username')
+        replace_vars["kf_username"] = self.settings.value('password')
+        for i, j in replace_vars.iteritems():
+            text = text.replace(u"{{" + i + u"}}", j)
+        return text
+
     def open_layer(self, filename, layerid):
         """Opens the specified layerid"""
         xml = file(unicode(filename)).read()
+        xml = self.replace_variables( xml )
         doc = QtXml.QDomDocument()
         doc.setContent(xml)
         node = self.getFirstChildByTagNameValue(
