@@ -253,7 +253,7 @@ class KortForsyningen:
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the menu bar item
-        del self.menu
+        self.menu.deleteLater()
 
 
     def run(self):
