@@ -35,7 +35,7 @@ import json
 
 from project import QgisProject
 
-KF_FILES_URL = 'http://telling.xyz/uploads/zOS8jsemdT.json'
+KF_FILES_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
 
 class KortForsyningen:
     """QGIS Plugin Implementation."""
