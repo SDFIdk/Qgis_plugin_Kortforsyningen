@@ -35,7 +35,7 @@ import json
 
 from project import QgisProject
 
-KF_FILES_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
+CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
 
 class KortForsyningen:
     """QGIS Plugin Implementation."""
@@ -54,48 +54,52 @@ class KortForsyningen:
         self.path = QFileInfo(os.path.realpath(__file__)).path()
 
         self.kf_path = self.path + '/kf/'
-        self.local_theme_file = self.kf_path + 'themes.json'
+        self.local_config_file = self.kf_path + 'themes.json'
 
         # List of error strings to be shown
         self.error_list = []
 
-        # Check if we have a version, and act accordingly
-        self.theme_file()
-
         ## Declare instance attributes
         self.actions = []
 
-    def theme_file(self):
-        themes_file = self.get_theme_file()
+        # Categories
+        self.categories = []
 
-        if not self.check_remote_themes(themes_file):
-            self.get_qgs_files(themes_file)
-        else:
-            self.themes = self.read_local_theme()
+        # Check if we have a version, and act accordingly
+        self.read_config()
+
+    def read_config(self):
+        config = self.get_remote_config_file()
+        # Fall back to local copy
+        if not config:
+            config = self.get_local_config_file()
+        if not config:
+            # TODO: Handle gracefully
+            print "Kunne ikke hente konfiguration"
+        self.get_qgs_files(config)
+        self.categories = config["categories"]
+
 
     def check_remote_themes(self, remote_file):
         remote_version = remote_file['version']
 
-        if os.path.exists(self.local_theme_file):
-            with open(self.local_theme_file, 'rU') as f:
-                local_theme = f.read()
-                local_theme = json.loads(local_theme)
+        if os.path.exists(self.local_config_file):
+            with open(self.local_config_file, 'rU') as f:
+                local_config = f.read()
+                local_config = json.loads(local_config)
 
-            return local_theme['version'] == remote_version
+            return local_config['version'] == remote_version
 
         return False
 
-    def read_local_theme(self):
-        with open(self.local_theme_file, 'rU') as f:
-            themes = f.read()
-
-        themes = json.loads(themes)
-        return themes['themes']
+    def get_local_config_file(self):
+        with open(self.local_config_file, 'rU') as f:
+            return json.loads( f )
 
 
-    def get_theme_file(self):
+    def get_remote_config_file(self):
         try:
-            response = urlopen(KF_FILES_URL)
+            response = urlopen(CONFIG_FILE_URL)
             response = json.load(response)
             return response
         except HTTPError, e:
@@ -104,21 +108,21 @@ class KortForsyningen:
         except URLError, e:
             print "URL Error:", e.reason, url
 
-    def write_theme_file(self, response):
+    def write_config_file(self, response):
         """We only call this function IF we have a new version downloaded"""
         # Remove old versions file
-        if os.path.exists(self.local_theme_file):
-            os.remove(self.local_theme_file)
+        if os.path.exists(self.local_config_file):
+            os.remove(self.local_config_file)
 
         # Write new version
-        with open(self.local_theme_file, 'w') as f:
+        with open(self.local_config_file, 'w') as f:
             json.dump(response, f)
 
 
-    def get_qgs_files(self, themes_file):
-        self.themes = themes_file['themes']
-        for theme in self.themes:
-            url = theme['url']
+    def get_qgs_files(self, config):
+        self.categories = config['categories']
+        for category in self.categories:
+            url = category['url']
             try:
                 f = urlopen(url)
                 # Write the file as filename to kf_path
@@ -126,7 +130,7 @@ class KortForsyningen:
                     local_file.write(f.read())
 
                 # We download new files, write new version file
-                self.write_theme_file(themes_file)
+                self.write_config_file(config)
 
             except HTTPError, e:
                 self.error_list.append('HTTP Error: {} {}'.format(e.code, url))
@@ -187,8 +191,8 @@ class KortForsyningen:
         self.menu.setTitle(self.tr('KortForsyningen'))
 
         # Add menu object for each theme
-        self.theme_menus = []
-        for elem in self.themes:
+        self.category_menus = []
+        for elem in self.categories:
             filename = elem['url'].rsplit('/', 1)[-1]
             theme_menu = QMenu()
             theme_menu.setObjectName(filename)
@@ -203,9 +207,9 @@ class KortForsyningen:
                         helper(layer['file'], layer['layerId'])
                 )
                 theme_menu.addAction(action)
-            self.theme_menus.append(theme_menu)
+            self.category_menus.append(theme_menu)
 
-        for menu in self.theme_menus:
+        for menu in self.category_menus:
             self.menu.addMenu(menu)
 
         # Seperate settings from actual content
@@ -245,7 +249,7 @@ class KortForsyningen:
             self.settings.setValue('password', '')
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Kort Forsyningen'),
+                self.tr(u'&KortForsyningen'),
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the menu bar item
