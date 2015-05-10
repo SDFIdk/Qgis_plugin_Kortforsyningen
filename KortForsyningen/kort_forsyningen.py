@@ -32,10 +32,12 @@ from kort_forsyningen_settings import KFSettings, KFSettingsDialog
 import os.path
 from urllib2 import urlopen, URLError, HTTPError
 import json
+import codecs
 
 from project import QgisProject
 
 CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
+
 
 class KortForsyningen:
     """QGIS Plugin Implementation."""
@@ -59,7 +61,7 @@ class KortForsyningen:
         # List of error strings to be shown
         self.error_list = []
 
-        ## Declare instance attributes
+        # Declare instance attributes
         self.actions = []
 
         # Categories
@@ -79,12 +81,11 @@ class KortForsyningen:
         self.get_qgs_files(config)
         self.categories = config["categories"]
 
-
     def check_remote_themes(self, remote_file):
         remote_version = remote_file['version']
 
         if os.path.exists(self.local_config_file):
-            with open(self.local_config_file, 'rU') as f:
+            with codecs.open(self.local_config_file, 'rU', 'utf-8') as f:
                 local_config = f.read()
                 local_config = json.loads(local_config)
 
@@ -95,7 +96,6 @@ class KortForsyningen:
     def get_local_config_file(self):
         with open(self.local_config_file, 'rU') as f:
             return json.loads( f )
-
 
     def get_remote_config_file(self):
         try:
@@ -118,15 +118,15 @@ class KortForsyningen:
         with open(self.local_config_file, 'w') as f:
             json.dump(response, f)
 
-
     def get_qgs_files(self, config):
         self.categories = config['categories']
         for category in self.categories:
             url = category['url']
             try:
                 f = urlopen(url)
+                filepath = self.kf_path + url.rsplit('/', 1)[-1]
                 # Write the file as filename to kf_path
-                with open(self.kf_path + url.rsplit('/', 1)[-1], "wb") as local_file:
+                with codecs.open(filepath, "wb") as local_file:
                     local_file.write(f.read())
 
                 # We download new files, write new version file
@@ -159,7 +159,7 @@ class KortForsyningen:
         while i < nodes.count():
             node = nodes.at(i)
             idNode = node.namedItem(key)
-            if idNode != None:
+            if idNode is not None:
                 id = idNode.firstChild().toText().data()
                 # layer founds
                 if id == value:
@@ -167,22 +167,23 @@ class KortForsyningen:
             i += 1
         return None
 
-    def replace_variables(self,text):
+    def replace_variables(self, text):
         """
         :param text: Input text
         :return: text where variables has been replaced
         """
         # TODO: If settings are not set then show the settings dialog
         replace_vars = {}
-        replace_vars["kf_username"] = self.settings.value('username')
-        replace_vars["kf_username"] = self.settings.value('password')
+        replace_vars[u"kf_username"] = unicode(self.settings.value('username'))
+        replace_vars[u"kf_password"] = unicode(self.settings.value('password'))
         for i, j in replace_vars.iteritems():
             text = text.replace(u"{{" + i + u"}}", j)
         return text
 
     def open_layer(self, filename, layerid):
         """Opens the specified layerid"""
-        xml = file(unicode(filename)).read()
+        with codecs.open(filename, 'rU', 'utf-8') as f:
+            xml = f.read()
         xml = self.replace_variables( xml )
         doc = QtXml.QDomDocument()
         doc.setContent(xml)
@@ -215,10 +216,10 @@ class KortForsyningen:
             helper = lambda _file, _layerId: lambda: self.open_layer(_file, _layerId)
             for layer in project.layers():
                 action = QAction(
-                        self.tr(layer['name']), self.iface.mainWindow()
+                    self.tr(layer['name']), self.iface.mainWindow()
                 )
                 action.triggered.connect(
-                        helper(layer['file'], layer['layerId'])
+                    helper(layer['file'], layer['layerId'])
                 )
                 theme_menu.addAction(action)
             self.category_menus.append(theme_menu)
@@ -231,9 +232,9 @@ class KortForsyningen:
 
         # Add settings
         self.settings_menu = QAction(
-                QIcon(icon_path),
-                self.tr('Indstillinger'),
-                self.iface.mainWindow()
+            QIcon(icon_path),
+            self.tr('Indstillinger'),
+            self.iface.mainWindow()
         )
         self.settings_menu.setObjectName('Indstillinger')
         self.settings_menu.triggered.connect(self.settings_dialog)
@@ -243,8 +244,6 @@ class KortForsyningen:
         menu_bar.insertMenu(
             self.iface.firstRightStandardMenu().menuAction(), self.menu
         )
-
-
 
     def settings_dialog(self):
         dlg = KFSettingsDialog(self.settings)
@@ -268,16 +267,3 @@ class KortForsyningen:
             self.iface.removeToolBarIcon(action)
         # remove the menu bar item
         self.menu.deleteLater()
-
-
-    def run(self):
-        """Run method that performs all the real work"""
-        # show the dialog
-        #self.dlg.show()
-        # Run the dialog event loop
-        #result = self.dlg.exec_()
-        # See if OK was pressed
-        #if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            #pass
