@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>171</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>240</y>
+     <y>130</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -33,7 +33,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>90</y>
+     <y>30</y>
      <width>70</width>
      <height>13</height>
     </rect>
@@ -46,7 +46,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>130</y>
+     <y>70</y>
      <width>70</width>
      <height>13</height>
     </rect>
@@ -59,7 +59,7 @@
    <property name="geometry">
     <rect>
      <x>120</x>
-     <y>160</y>
+     <y>100</y>
      <width>121</width>
      <height>18</height>
     </rect>
@@ -72,7 +72,7 @@
    <property name="geometry">
     <rect>
      <x>120</x>
-     <y>80</y>
+     <y>20</y>
      <width>250</width>
      <height>31</height>
     </rect>
@@ -82,10 +82,23 @@
    <property name="geometry">
     <rect>
      <x>120</x>
-     <y>120</y>
+     <y>60</y>
      <width>250</width>
      <height>31</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>100</y>
+     <width>81</width>
+     <height>18</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;http://download.kortforsyningen.dk//content/opret-mig-som-bruger&quot;&gt;&lt;span style=&quot; color:#000000;&quot;&gt;Opret bruger&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
  </widget>

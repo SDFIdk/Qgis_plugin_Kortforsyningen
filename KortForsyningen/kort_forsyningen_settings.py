@@ -23,10 +23,10 @@
 
 import os
 from PyQt4 import QtGui, uic
-from qgissettingmanager import *
+from qgissettingmanager import SettingManager, SettingDialog
 
 FORM_CLASS, _ = uic.loadUiType(
-        os.path.join(os.path.dirname(__file__), 'kf_settings.ui')
+    os.path.join(os.path.dirname(__file__), 'kf_settings.ui')
 )
 
 
