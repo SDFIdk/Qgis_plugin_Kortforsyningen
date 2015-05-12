@@ -36,7 +36,9 @@ import codecs
 
 from project import QgisProject
 
+KF_NEDE = 'http://develop.septima.dk/qgis-kf-knap/themes.json'
 CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
+# CONFIG_FILE_URL = KF_NEDE
 
 
 class KortForsyningen:
@@ -58,8 +60,8 @@ class KortForsyningen:
         self.kf_path = self.path + '/kf/'
         self.local_config_file = self.kf_path + 'themes.json'
 
-        # List of error strings to be shown
-        self.error_list = []
+        # An error menu object, set to None.
+        self.error_menu = None
 
         # Categories
         self.categories = []
@@ -69,15 +71,32 @@ class KortForsyningen:
 
     def read_config(self):
         config = self.get_remote_config_file()
-        # Fall back to local copy
-        if config and self.check_local_config(remote_config=config):
-            config = self.get_local_config_file()
-        if not config:
-            config = self.get_local_config_file()
-        if not config:
-            # TODO: Handle gracefully
-            print "Kunne ikke hente konfiguration"
-        self.get_qgs_files(config)
+        local_file_exists = os.path.exists(self.local_config_file)
+        service_unavailable = config == 'HTTPError' or config == 'URLError'
+
+        if service_unavailable:
+            if local_file_exists:
+                config = self.get_local_config_file()
+            else:
+                self.error_menu = QAction(
+                    # possibly add an error icon?
+                    # QIcon(error_path),
+                    self.tr('Ingen kontakt til kortforsyningen'),
+                    self.iface.mainWindow()
+                )
+                return
+        else:
+            if local_file_exists:
+                # We have the latest config file locally
+                if self.check_local_config(remote_config=config):
+                    config = self.get_local_config_file()
+                # We download new config file and qgs files
+                else:
+                    self.get_qgs_files(config)
+            else:
+                # We haven't got anything locally
+                self.get_qgs_files(config)
+
         self.categories = config["categories"]
 
     def check_local_config(self, remote_config):
@@ -100,11 +119,10 @@ class KortForsyningen:
             response = urlopen(CONFIG_FILE_URL)
             response = json.load(response)
             return response
-        except HTTPError, e:
-            # TODO: Maybe show a dialog?
-            print "HTTP Error:", e
-        except URLError, e:
-            print "URL Error:", e
+        except HTTPError:
+            return 'HTTPError'
+        except URLError:
+            return 'URLError'
 
     def write_config_file(self, response):
         """We only call this function IF we have a new version downloaded"""
@@ -225,6 +243,9 @@ class KortForsyningen:
         self.menu = QMenu(self.iface.mainWindow().menuBar())
         self.menu.setObjectName('KortForsyningen')
         self.menu.setTitle(self.tr('KortForsyningen'))
+
+        if self.error_menu:
+            self.menu.addAction(self.error_menu)
 
         # Add menu object for each theme
         self.category_menus = []
