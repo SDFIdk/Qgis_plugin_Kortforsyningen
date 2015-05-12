@@ -61,9 +61,6 @@ class KortForsyningen:
         # List of error strings to be shown
         self.error_list = []
 
-        # Declare instance attributes
-        self.actions = []
-
         # Categories
         self.categories = []
 
@@ -73,6 +70,9 @@ class KortForsyningen:
     def read_config(self):
         config = self.get_remote_config_file()
         # Fall back to local copy
+        if config and self.check_local_config(remote_config=config):
+            config = self.get_local_config_file()
+            print "no download, just read local"
         if not config:
             config = self.get_local_config_file()
         if not config:
@@ -81,13 +81,12 @@ class KortForsyningen:
         self.get_qgs_files(config)
         self.categories = config["categories"]
 
-    def check_remote_themes(self, remote_file):
-        remote_version = remote_file['version']
+    def check_local_config(self, remote_config):
+        remote_version = remote_config['version']
 
         if os.path.exists(self.local_config_file):
             with codecs.open(self.local_config_file, 'rU', 'utf-8') as f:
-                local_config = f.read()
-                local_config = json.loads(local_config)
+                local_config = json.loads(f.read())
 
             return local_config['version'] == remote_version
 
@@ -95,7 +94,7 @@ class KortForsyningen:
 
     def get_local_config_file(self):
         with codecs.open(self.local_config_file, 'rU', 'utf-8') as f:
-            return json.loads( f )
+            return json.loads(f.read())
 
     def get_remote_config_file(self):
         try:
@@ -104,9 +103,9 @@ class KortForsyningen:
             return response
         except HTTPError, e:
             # TODO: Maybe show a dialog?
-            print "HTTP Error:", e.code, url
+            print "HTTP Error:", e
         except URLError, e:
-            print "URL Error:", e.reason, url
+            print "URL Error:", e
 
     def write_config_file(self, response):
         """We only call this function IF we have a new version downloaded"""
@@ -133,9 +132,13 @@ class KortForsyningen:
                 self.write_config_file(config)
 
             except HTTPError, e:
-                self.error_list.append('HTTP Error: {} {}'.format(e.code, url))
+                self.error_list.append(
+                    'HTTP Error: {} {}'.format(e.code, url)
+                )
             except URLError, e:
-                self.error_list.append('URL Error: {} {}'.format(e.reason, url))
+                self.error_list.append(
+                    'URL Error: {} {}'.format(e.reason, url)
+                )
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -161,7 +164,7 @@ class KortForsyningen:
             idNode = node.namedItem(key)
             if idNode is not None:
                 child = idNode.firstChild().toText().data()
-                # layer founds
+                # layer found
                 if child == value:
                     return node
             i += 1
@@ -208,13 +211,13 @@ class KortForsyningen:
 
         # Add menu object for each theme
         self.category_menus = []
-        for elem in self.categories:
-            filename = elem['url'].rsplit('/', 1)[-1]
+        for category in self.categories:
+            filename = category['url'].rsplit('/', 1)[-1]
             theme_menu = QMenu()
             theme_menu.setObjectName(filename)
-            theme_menu.setTitle(self.tr(elem['name']))
+            theme_menu.setTitle(self.tr(category['name']))
             project = QgisProject(self.kf_path + filename)
-            helper = lambda _file, _layerId: lambda: self.open_layer(_file, _layerId)
+            helper = lambda _f, _layer: lambda: self.open_layer(_f, _layer)
             for layer in project.layers():
                 action = QAction(
                     self.tr(layer['name']), self.iface.mainWindow()
@@ -225,8 +228,8 @@ class KortForsyningen:
                 theme_menu.addAction(action)
             self.category_menus.append(theme_menu)
 
-        for menu in self.category_menus:
-            self.menu.addMenu(menu)
+        for submenu in self.category_menus:
+            self.menu.addMenu(submenu)
 
         # Seperate settings from actual content
         self.menu.addSeparator()
@@ -261,10 +264,8 @@ class KortForsyningen:
         if self.settings.value('remember_settings') is False:
             self.settings.setValue('username', '')
             self.settings.setValue('password', '')
-        for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&KortForsyningen'),
-                action)
-            self.iface.removeToolBarIcon(action)
+        # Remove the submenus
+        for submenu in self.category_menus:
+            submenu.deleteLater()
         # remove the menu bar item
         self.menu.deleteLater()
