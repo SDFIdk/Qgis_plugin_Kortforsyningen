@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- KortForsyningenDialog
+ KortForsyningenSettingsDialog
                                  A QGIS plugin
  Nem adgang til kortforsyningens wms
                              -------------------

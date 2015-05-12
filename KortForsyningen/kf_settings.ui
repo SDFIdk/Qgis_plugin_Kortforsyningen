@@ -100,6 +100,9 @@
    <property name="text">
     <string>&lt;a href=&quot;http://download.kortforsyningen.dk//content/opret-mig-som-bruger&quot;&gt;Opret bruger&lt;/a&gt;</string>
    </property>
+   <property name="openExternalLinks">
+    <bool>true</bool>
+   </property>
   </widget>
  </widget>
  <resources/>
