@@ -36,9 +36,7 @@ import codecs
 
 from project import QgisProject
 
-KF_NEDE = 'http://develop.septima.dk/qgis-kf-knap/themes.json'
 CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
-# CONFIG_FILE_URL = KF_NEDE
 
 
 class KortForsyningen:
