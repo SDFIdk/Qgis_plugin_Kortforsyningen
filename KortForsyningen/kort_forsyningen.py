@@ -22,7 +22,7 @@
 """
 from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt4.QtCore import QFileInfo
-from PyQt4.QtGui import QAction, QIcon, QMenu
+from PyQt4.QtGui import QAction, QIcon, QMenu, QPushButton
 from PyQt4 import QtXml
 from qgis.gui import QgsMessageBar
 from qgis.core import *
@@ -72,7 +72,6 @@ class KortForsyningen:
         # Fall back to local copy
         if config and self.check_local_config(remote_config=config):
             config = self.get_local_config_file()
-            print "no download, just read local"
         if not config:
             config = self.get_local_config_file()
         if not config:
@@ -183,8 +182,26 @@ class KortForsyningen:
             text = text.replace("{{" + str(i) + "}}", str(j))
         return text
 
+    def settings_set(self):
+        if self.settings.value('username') and self.settings.value('password'):
+            return True
+
+        return False
+
     def open_layer(self, filename, layerid):
         """Opens the specified layerid"""
+        # If settings are not set, ask user to set them
+        if not self.settings_set():
+            widget = self.iface.messageBar().createMessage(
+                'Fejl', 'Udfyld venligst brugernavn og kodeord.'
+            )
+            settings_btn = QPushButton(widget)
+            settings_btn.setText("Indstillinger")
+            settings_btn.pressed.connect(self.settings_dialog)
+            widget.layout().addWidget(settings_btn)
+            self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
+            return
+
         with open(filename, 'r') as f:
             xml = f.read()
         xml = self.replace_variables(xml)
