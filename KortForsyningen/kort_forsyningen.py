@@ -94,7 +94,7 @@ class KortForsyningen:
         return False
 
     def get_local_config_file(self):
-        with open(self.local_config_file, 'rU') as f:
+        with codecs.open(self.local_config_file, 'rU', 'utf-8') as f:
             return json.loads( f )
 
     def get_remote_config_file(self):
@@ -160,9 +160,9 @@ class KortForsyningen:
             node = nodes.at(i)
             idNode = node.namedItem(key)
             if idNode is not None:
-                id = idNode.firstChild().toText().data()
+                child = idNode.firstChild().toText().data()
                 # layer founds
-                if id == value:
+                if child == value:
                     return node
             i += 1
         return None
@@ -174,17 +174,18 @@ class KortForsyningen:
         """
         # TODO: If settings are not set then show the settings dialog
         replace_vars = {}
-        replace_vars[u"kf_username"] = unicode(self.settings.value('username'))
-        replace_vars[u"kf_password"] = unicode(self.settings.value('password'))
+        replace_vars["kf_username"] = self.settings.value('username')
+        replace_vars["kf_password"] = self.settings.value('password')
         for i, j in replace_vars.iteritems():
-            text = text.replace(u"{{" + i + u"}}", j)
+            text = text.replace("{{" + str(i) + "}}", str(j))
         return text
 
     def open_layer(self, filename, layerid):
         """Opens the specified layerid"""
-        with codecs.open(filename, 'rU', 'utf-8') as f:
+        with open(filename, 'r') as f:
             xml = f.read()
-        xml = self.replace_variables( xml )
+        xml = self.replace_variables(xml)
+        # QtXml takes only bytes. We cant give it unicode.
         doc = QtXml.QDomDocument()
         doc.setContent(xml)
         node = self.getFirstChildByTagNameValue(
