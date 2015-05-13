@@ -36,7 +36,7 @@ import codecs
 
 from project import QgisProject
 
-CONFIG_FILE_URL = 'http://telling.xyz/uploads/xYiKaLu3FD.json'
+CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
 
 
 class KortForsyningen:
