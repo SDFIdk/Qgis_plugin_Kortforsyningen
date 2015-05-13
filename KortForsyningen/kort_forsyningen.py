@@ -36,7 +36,7 @@ import codecs
 
 from project import QgisProject
 
-CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
+CONFIG_FILE_URL = 'http://telling.xyz/uploads/xYiKaLu3FD.json'
 
 
 class KortForsyningen:
@@ -91,14 +91,9 @@ class KortForsyningen:
                 # We have the latest config file locally
                 if self.check_local_config(remote_config=config):
                     config = self.get_local_config_file()
-                # We download new config file and qgs files
-                else:
-                    self.get_qgs_files(config)
-            else:
-                # We haven't got anything locally
-                self.get_qgs_files(config)
 
         self.categories = config["categories"]
+        self.get_qgs_files(config)
 
     def check_local_config(self, remote_config):
         remote_version = remote_config['version']
