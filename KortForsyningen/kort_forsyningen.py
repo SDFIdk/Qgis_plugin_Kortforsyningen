@@ -56,6 +56,9 @@ class KortForsyningen:
         self.path = QFileInfo(os.path.realpath(__file__)).path()
 
         self.kf_path = self.path + '/kf/'
+        if not os.path.exists(self.kf_path):
+            os.makedirs(self.kf_path)
+
         self.local_config_file = self.kf_path + 'themes.json'
 
         # An error menu object, set to None.
