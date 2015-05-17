@@ -39,22 +39,22 @@ LOCALES =
 SOURCES = \
 	__init__.py \
 	kort_forsyningen.py \
-	kort_forsyningen_dialog.py \
 	kort_forsyningen_settings.py
+
 
 PLUGINNAME = KortForsyningen
 
 PY_FILES = \
 	kort_forsyningen.py \
-	kort_forsyningen_dialog.py \
 	kort_forsyningen_settings.py \
 	__init__.py
 
 UI_FILES = \
-	kort_forsyningen_dialog_base.ui \
 	kf_settings.ui
 
 EXTRAS = icon.png metadata.txt
+
+PLUGIN = qgissettingmanager
 
 COMPILED_RESOURCE_FILES = resources_rc.py
 
@@ -116,6 +116,7 @@ deploy: compile doc transcompile
 	cp -vf $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vfr i18n $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vfr $(HELP) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/help
+	cp -vfr $(PLUGIN) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/$(PLUGIN)
 
 # The dclean target removes compiled python files from plugin directory
 # also deletes any .git entry
