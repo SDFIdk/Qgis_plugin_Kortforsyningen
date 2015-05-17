@@ -39,7 +39,8 @@ LOCALES =
 SOURCES = \
 	__init__.py \
 	kort_forsyningen.py \
-	kort_forsyningen_settings.py
+	kort_forsyningen_settings.py \
+	project.py
 
 
 PLUGINNAME = KortForsyningen
@@ -47,6 +48,7 @@ PLUGINNAME = KortForsyningen
 PY_FILES = \
 	kort_forsyningen.py \
 	kort_forsyningen_settings.py \
+	project.py \
 	__init__.py
 
 UI_FILES = \
