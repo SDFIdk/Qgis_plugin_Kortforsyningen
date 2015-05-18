@@ -35,9 +35,11 @@ import json
 import codecs
 
 from project import QgisProject
-
 CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
 
+
+def log_message(message):
+    QgsMessageLog.logMessage(message , 'Kortforsyningen plugin')
 
 class KortForsyningen:
     """QGIS Plugin Implementation."""
@@ -71,9 +73,13 @@ class KortForsyningen:
         self.read_config()
 
     def read_config(self):
-        config = self.get_remote_config_file()
         local_file_exists = os.path.exists(self.local_config_file)
-        service_unavailable = config == 'HTTPError' or config == 'URLError'
+        try:
+            config = self.get_remote_config_file()
+            service_unavailable = False
+        except Exception, e:
+            log_message('Ingen kontakt til konfiguration på ' + CONFIG_FILE_URL + '. Exception: ' + str(e) )
+            service_unavailable = True
 
         if service_unavailable:
             if local_file_exists:
@@ -111,14 +117,9 @@ class KortForsyningen:
             return json.loads(f.read())
 
     def get_remote_config_file(self):
-        try:
-            response = urlopen(CONFIG_FILE_URL)
-            response = json.load(response)
-            return response
-        except HTTPError:
-            return 'HTTPError'
-        except URLError:
-            return 'URLError'
+        response = urlopen(CONFIG_FILE_URL)
+        response = json.load(response)
+        return response
 
     def write_config_file(self, response):
         """We only call this function IF we have a new version downloaded"""
