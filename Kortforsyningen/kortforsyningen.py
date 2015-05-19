@@ -92,11 +92,6 @@ class Kortforsyningen:
                     self.iface.mainWindow()
                 )
                 return
-        else:
-            if local_file_exists:
-                # We have the latest config file locally
-                if self.check_local_config(remote_config=config):
-                    config = self.get_local_config_file()
 
         self.categories = config["categories"]
         self.get_qgs_files(config)
@@ -118,8 +113,8 @@ class Kortforsyningen:
 
     def get_remote_config_file(self):
         response = urlopen(CONFIG_FILE_URL)
-        response = json.load(response)
-        return response
+        content = response.read()
+        return json.loads( content )
 
     def write_config_file(self, response):
         """We only call this function IF we have a new version downloaded"""
