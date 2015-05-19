@@ -1,7 +1,7 @@
 #/***************************************************************************
-# KortForsyningen
+# Kortforsyningen
 #
-# Nem adgang til kortforsyningens wms
+# Nem adgang til Kortforsyningens wms
 #							 -------------------
 #		begin				: 2015-05-01
 #		git sha				: $Format:%H$
@@ -38,16 +38,16 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	kort_forsyningen.py \
-	kort_forsyningen_settings.py \
+	kortforsyningen.py \
+	kortforsyningen_settings.py \
 	project.py
 
 
-PLUGINNAME = KortForsyningen
+PLUGINNAME = Kortforsyningen
 
 PY_FILES = \
-	kort_forsyningen.py \
-	kort_forsyningen_settings.py \
+	kortforsyningen.py \
+	kortforsyningen_settings.py \
 	project.py \
 	__init__.py
 

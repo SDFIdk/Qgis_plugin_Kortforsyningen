@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- KortForsyningenSettingsDialog
+ KortforsyningenSettingsDialog
                                  A QGIS plugin
  Nem adgang til kortforsyningens wms
                              -------------------
@@ -32,7 +32,7 @@ FORM_CLASS, _ = uic.loadUiType(
 
 class KFSettings(SettingManager):
     def __init__(self):
-        SettingManager.__init__(self, 'KortForsyningen')
+        SettingManager.__init__(self, 'Kortforsyningen')
         self.addSetting('username', 'string', 'global', '')
         self.addSetting('password', 'string', 'global', '')
         self.addSetting('remember_settings', 'bool', 'global', False)

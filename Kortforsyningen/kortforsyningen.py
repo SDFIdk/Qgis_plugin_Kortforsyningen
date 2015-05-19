@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- KortForsyningen
+ Kortforsyningen
                                  A QGIS plugin
  Nem adgang til kortforsyningens wms
                               -------------------
@@ -28,7 +28,7 @@ from qgis.gui import QgsMessageBar
 from qgis.core import *
 # Initialize Qt resources from file resources.py
 import resources_rc
-from kort_forsyningen_settings import KFSettings, KFSettingsDialog
+from kortforsyningen_settings import KFSettings, KFSettingsDialog
 import os.path
 from urllib2 import urlopen, URLError, HTTPError
 import json
@@ -41,7 +41,7 @@ CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
 def log_message(message):
     QgsMessageLog.logMessage(message , 'Kortforsyningen plugin')
 
-class KortForsyningen:
+class Kortforsyningen:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -78,7 +78,7 @@ class KortForsyningen:
             config = self.get_remote_config_file()
             service_unavailable = False
         except Exception, e:
-            log_message('Ingen kontakt til konfiguration på ' + CONFIG_FILE_URL + '. Exception: ' + str(e) )
+            log_message(u'Ingen kontakt til konfiguration på ' + CONFIG_FILE_URL + '. Exception: ' + str(e) )
             service_unavailable = True
 
         if service_unavailable:
@@ -88,7 +88,7 @@ class KortForsyningen:
                 self.error_menu = QAction(
                     # possibly add an error icon?
                     # QIcon(error_path),
-                    self.tr('Ingen kontakt til kortforsyningen'),
+                    self.tr('Ingen kontakt til Kortforsyningen'),
                     self.iface.mainWindow()
                 )
                 return
@@ -167,7 +167,7 @@ class KortForsyningen:
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('KortForsyningen', message)
+        return QCoreApplication.translate('Kortforsyningen', message)
 
     # Taken directly from menu_from_project
     def getFirstChildByTagNameValue(self, elt, tagName, key, value):
@@ -235,11 +235,11 @@ class KortForsyningen:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/KortForsyningen/icon.png'
+        icon_path = ':/plugins/Kortforsyningen/icon.png'
 
         self.menu = QMenu(self.iface.mainWindow().menuBar())
-        self.menu.setObjectName('KortForsyningen')
-        self.menu.setTitle(self.tr('KortForsyningen'))
+        self.menu.setObjectName('Kortforsyningen')
+        self.menu.setTitle(self.tr('Kortforsyningen'))
 
         if self.error_menu:
             self.menu.addAction(self.error_menu)
