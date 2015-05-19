@@ -39,7 +39,8 @@ CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
 
 
 def log_message(message):
-    QgsMessageLog.logMessage(message , 'Kortforsyningen plugin')
+    QgsMessageLog.logMessage(message, 'Kortforsyningen plugin')
+
 
 class Kortforsyningen:
     """QGIS Plugin Implementation."""
@@ -78,7 +79,7 @@ class Kortforsyningen:
             config = self.get_remote_config_file()
             service_unavailable = False
         except Exception, e:
-            log_message(u'Ingen kontakt til konfiguration på ' + CONFIG_FILE_URL + '. Exception: ' + str(e) )
+            log_message(u'Ingen kontakt til konfiguration på ' + CONFIG_FILE_URL + '. Exception: ' + str(e))
             service_unavailable = True
 
         if service_unavailable:
@@ -114,7 +115,7 @@ class Kortforsyningen:
     def get_remote_config_file(self):
         response = urlopen(CONFIG_FILE_URL)
         content = response.read()
-        return json.loads( content )
+        return json.loads(content)
 
     def write_config_file(self, response):
         """We only call this function IF we have a new version downloaded"""
@@ -123,7 +124,7 @@ class Kortforsyningen:
             os.remove(self.local_config_file)
 
         # Write new version
-        with open(self.local_config_file, 'w') as f:
+        with codecs.open(self.local_config_file, 'w', 'utf-8') as f:
             json.dump(response, f)
 
     def get_qgs_files(self, config):
