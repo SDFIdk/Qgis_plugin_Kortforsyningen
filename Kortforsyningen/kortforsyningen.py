@@ -30,12 +30,14 @@ from qgis.core import *
 import resources_rc
 from kortforsyningen_settings import KFSettings, KFSettingsDialog
 import os.path
+import datetime
 from urllib2 import urlopen, URLError, HTTPError
 import json
 import codecs
 
 from project import QgisProject
 CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
+FILE_MAX_AGE = datetime.timedelta(hours=12)
 
 
 def log_message(message):
@@ -74,28 +76,35 @@ class Kortforsyningen:
         self.read_config()
 
     def read_config(self):
-        local_file_exists = os.path.exists(self.local_config_file)
-        try:
-            config = self.get_remote_config_file()
-            service_unavailable = False
-        except Exception, e:
-            log_message(u'Ingen kontakt til konfiguration på ' + CONFIG_FILE_URL + '. Exception: ' + str(e))
-            service_unavailable = True
+        config = None
+        load_remote_config = True
 
-        if service_unavailable:
-            if local_file_exists:
-                config = self.get_local_config_file()
-            else:
-                self.error_menu = QAction(
-                    # possibly add an error icon?
-                    # QIcon(error_path),
-                    self.tr('Ingen kontakt til Kortforsyningen'),
-                    self.iface.mainWindow()
-                )
+        local_file_exists = os.path.exists(self.local_config_file)
+        if local_file_exists:
+            config = self.get_local_config_file()
+            local_file_time = datetime.datetime.fromtimestamp(os.path.getmtime(self.local_config_file))
+            load_remote_config = local_file_time < datetime.datetime.now() - FILE_MAX_AGE
+
+        if load_remote_config:
+            try:
+                print 'Loading remote config'
+                config = self.get_remote_config_file()
+                print 'Loaded remote config'
+            except Exception, e:
+                log_message(u'Ingen kontakt til konfiguration på ' + CONFIG_FILE_URL + '. Exception: ' + str(e))
+                if not local_file_exists:
+                    self.error_menu = QAction(
+                        # possibly add an error icon?
+                        # QIcon(error_path),
+                        self.tr('Ingen kontakt til Kortforsyningen'),
+                        self.iface.mainWindow()
+                    )
                 return
+            self.write_config_file(config)
 
         self.categories = config["categories"]
-        self.get_qgs_files(config)
+        self.update_qgs_files(config)
+
 
     def check_local_config(self, remote_config):
         remote_version = remote_config['version']
@@ -127,20 +136,23 @@ class Kortforsyningen:
         with codecs.open(self.local_config_file, 'w', 'utf-8') as f:
             json.dump(response, f)
 
-    def get_qgs_files(self, config):
+    def update_qgs_files(self, config):
         self.categories = config['categories']
         for category in self.categories:
             url = category['url']
+            filepath = self.kf_path + url.rsplit('/', 1)[-1]
+            if os.path.exists(filepath):
+                file_time = datetime.datetime.fromtimestamp(os.path.getmtime(filepath))
+                if file_time > datetime.datetime.now() - FILE_MAX_AGE:
+                    print "Using local file for category {}".format(category)
+                    continue
+
+            print "Fetching category {} from {} storing at {}".format(category, url, filepath)
             try:
                 f = urlopen(url)
-                filepath = self.kf_path + url.rsplit('/', 1)[-1]
                 # Write the file as filename to kf_path
                 with codecs.open(filepath, "wb") as local_file:
                     local_file.write(f.read())
-
-                # We download new files, write new version file
-                self.write_config_file(config)
-
             except HTTPError, e:
                 self.error_list.append(
                     'HTTP Error: {} {}'.format(e.code, url)
