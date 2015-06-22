@@ -34,6 +34,7 @@ import datetime
 from urllib2 import urlopen, URLError, HTTPError
 import json
 import codecs
+from kortforsyningen_about import KFAboutDialog
 
 from project import QgisProject
 CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
@@ -104,7 +105,6 @@ class Kortforsyningen:
 
         self.categories = config["categories"]
         self.update_qgs_files(config)
-
 
     def check_local_config(self, remote_config):
         remote_version = remote_config['version']
@@ -287,6 +287,15 @@ class Kortforsyningen:
         self.settings_menu.triggered.connect(self.settings_dialog)
         self.menu.addAction(self.settings_menu)
 
+        # Add about
+        self.about_menu = QAction(
+            self.tr('Om pluginet'),
+            self.iface.mainWindow()
+        )
+        self.about_menu.setObjectName('Om pluginet')
+        self.about_menu.triggered.connect(self.about_dialog)
+        self.menu.addAction(self.about_menu)
+
         menu_bar = self.iface.mainWindow().menuBar()
         menu_bar.insertMenu(
             self.iface.firstRightStandardMenu().menuAction(), self.menu
@@ -295,6 +304,16 @@ class Kortforsyningen:
     def settings_dialog(self):
         dlg = KFSettingsDialog(self.settings)
         dlg.setWidgetsFromValues()
+        dlg.show()
+        result = dlg.exec_()
+
+        if result == 1:
+            del dlg
+
+    def about_dialog(self):
+        dlg = KFAboutDialog()
+        # Here we set the contents of the about menu
+        dlg.aboutKortforsyningen.setText('hej')
         dlg.show()
         result = dlg.exec_()
 
