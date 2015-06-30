@@ -20,8 +20,9 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt4.QtCore import QCoreApplication
 from PyQt4.QtCore import QFileInfo
+from PyQt4.QtCore import QUrl
 from PyQt4.QtGui import QAction, QIcon, QMenu, QPushButton
 from PyQt4 import QtXml
 from qgis.gui import QgsMessageBar
@@ -38,6 +39,7 @@ from kortforsyningen_about import KFAboutDialog
 
 from project import QgisProject
 CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
+ABOUT_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/about.html'
 FILE_MAX_AGE = datetime.timedelta(hours=12)
 
 
@@ -66,6 +68,7 @@ class Kortforsyningen:
             os.makedirs(self.kf_path)
 
         self.local_config_file = self.kf_path + 'themes.json'
+        self.local_about_file = self.kf_path + 'about.html'
 
         # An error menu object, set to None.
         self.error_menu = None
@@ -73,8 +76,42 @@ class Kortforsyningen:
         # Categories
         self.categories = []
 
+        # Read the about page
+        self.read_about_page()
+
         # Check if we have a version, and act accordingly
         self.read_config()
+
+    def read_about_page(self):
+        load_remote_about = True
+
+        local_file_exists = os.path.exists(self.local_about_file)
+        if local_file_exists:
+            local_file_time = datetime.datetime.fromtimestamp(
+                os.path.getmtime(self.local_about_file)
+            )
+            load_remote_about = local_file_time < datetime.datetime.now() - FILE_MAX_AGE
+
+        if load_remote_about:
+            try:
+                response = urlopen(ABOUT_FILE_URL)
+                about = response.read()
+            except Exception, e:
+                log_message(u'Ingen kontakt til konfiguration på ' + ABOUT_FILE_URL + '. Exception: ' + str(e))
+                if not local_file_exists:
+                    self.error_menu = QAction(
+                        self.tr('Ingen kontakt til Kortforsyningen'),
+                        self.iface.mainWindow()
+                    )
+                return
+            self.write_about_file(about)
+
+    def write_about_file(self, content):
+        if os.path.exists(self.local_about_file):
+            os.remove(self.local_about_file)
+
+        with codecs.open(self.local_about_file, 'w') as f:
+            f.write(content)
 
     def read_config(self):
         config = None
@@ -83,20 +120,18 @@ class Kortforsyningen:
         local_file_exists = os.path.exists(self.local_config_file)
         if local_file_exists:
             config = self.get_local_config_file()
-            local_file_time = datetime.datetime.fromtimestamp(os.path.getmtime(self.local_config_file))
+            local_file_time = datetime.datetime.fromtimestamp(
+                os.path.getmtime(self.local_config_file)
+            )
             load_remote_config = local_file_time < datetime.datetime.now() - FILE_MAX_AGE
 
         if load_remote_config:
             try:
-                print 'Loading remote config'
                 config = self.get_remote_config_file()
-                print 'Loaded remote config'
             except Exception, e:
                 log_message(u'Ingen kontakt til konfiguration på ' + CONFIG_FILE_URL + '. Exception: ' + str(e))
                 if not local_file_exists:
                     self.error_menu = QAction(
-                        # possibly add an error icon?
-                        # QIcon(error_path),
                         self.tr('Ingen kontakt til Kortforsyningen'),
                         self.iface.mainWindow()
                     )
@@ -105,17 +140,6 @@ class Kortforsyningen:
 
         self.categories = config["categories"]
         self.update_qgs_files(config)
-
-    def check_local_config(self, remote_config):
-        remote_version = remote_config['version']
-
-        if os.path.exists(self.local_config_file):
-            with codecs.open(self.local_config_file, 'rU', 'utf-8') as f:
-                local_config = json.loads(f.read())
-
-            return local_config['version'] == remote_version
-
-        return False
 
     def get_local_config_file(self):
         with codecs.open(self.local_config_file, 'rU', 'utf-8') as f:
@@ -142,12 +166,12 @@ class Kortforsyningen:
             url = category['url']
             filepath = self.kf_path + url.rsplit('/', 1)[-1]
             if os.path.exists(filepath):
-                file_time = datetime.datetime.fromtimestamp(os.path.getmtime(filepath))
+                file_time = datetime.datetime.fromtimestamp(
+                    os.path.getmtime(filepath)
+                )
                 if file_time > datetime.datetime.now() - FILE_MAX_AGE:
-                    print "Using local file for category {}".format(category)
                     continue
 
-            print "Fetching category {} from {} storing at {}".format(category, url, filepath)
             try:
                 f = urlopen(url)
                 # Write the file as filename to kf_path
@@ -312,8 +336,8 @@ class Kortforsyningen:
 
     def about_dialog(self):
         dlg = KFAboutDialog()
-        # Here we set the contents of the about menu
-        dlg.aboutKortforsyningen.setText('hej')
+        dlg.webView.setUrl(QUrl(self.local_about_file))
+        dlg.webView.urlChanged
         dlg.show()
         result = dlg.exec_()
 
