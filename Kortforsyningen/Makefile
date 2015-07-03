@@ -40,6 +40,7 @@ SOURCES = \
 	__init__.py \
 	kortforsyningen.py \
 	kortforsyningen_settings.py \
+	kortforsyningen_about.py \
 	project.py
 
 
@@ -48,11 +49,13 @@ PLUGINNAME = Kortforsyningen
 PY_FILES = \
 	kortforsyningen.py \
 	kortforsyningen_settings.py \
+	kortforsyningen_about.py \
 	project.py \
 	__init__.py
 
 UI_FILES = \
-	kf_settings.ui
+	kf_settings.ui \
+	aboutKortforsyningen.ui
 
 EXTRAS = icon.png metadata.txt
 
