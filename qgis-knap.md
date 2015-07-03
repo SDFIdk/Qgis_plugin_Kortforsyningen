@@ -36,7 +36,7 @@ Her eksemplificeret med *Baggrundskort*, hvor *Baggrundskort.qgs* indeholder 6 l
 
 ![](http://telling.xyz/uploads/NylmHU1Ffg.png)
 
-Inden man offentliggører sin QGIS projekt fil, er det væsentligt at man udskifter password og brugernavn filen. Åbnes QGIS projektet i en tekst editor, skal der i datasource elementerne udskiftes kodeord og brugernavn til udskiftnings variablene `{{kf_username}}` og `{{kf_password}}`
+Inden man offentliggører sin QGIS projekt fil, er det væsentligt at man udskifter password og brugernavn i filen. Åbnes QGIS projektet i en tekst editor, skal der i datasource elementerne udskiftes kodeord og brugernavn til udskiftnings variablene `{{kf_username}}` og `{{kf_password}}`
 
 For et QGIS projekt med brugernavn `septima` og kodeord `kodeord` vil strengen se således ud:
 
