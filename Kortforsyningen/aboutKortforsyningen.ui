@@ -31,6 +31,9 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="renderHints">
+    <set>QPainter::Antialiasing|QPainter::HighQualityAntialiasing|QPainter::SmoothPixmapTransform|QPainter::TextAntialiasing</set>
+   </property>
   </widget>
  </widget>
  <customwidgets>
