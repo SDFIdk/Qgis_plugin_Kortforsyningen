@@ -260,9 +260,23 @@ class Kortforsyningen:
         )
         QgsProject.instance().read(node)
         layer = QgsMapLayerRegistry.instance().mapLayer(layerid)
-        self.iface.legendInterface().refreshLayerSymbology(layer)
-        self.iface.legendInterface().moveLayer(layer, 0)
-        self.iface.legendInterface().refreshLayerSymbology(layer)
+        if layer:
+            self.iface.legendInterface().refreshLayerSymbology(layer)
+            self.iface.legendInterface().moveLayer(layer, 0)
+            self.iface.legendInterface().refreshLayerSymbology(layer)
+            return layer
+        else:
+            print "Could not load layer"
+            widget = self.iface.messageBar().createMessage(
+                'Fejl', u'Kunne ikke indlæse laget. Er brugernavn og password korrekte?'
+            )
+            settings_btn = QPushButton(widget)
+            settings_btn.setText("Indstillinger")
+            settings_btn.pressed.connect(self.settings_dialog)
+            widget.layout().addWidget(settings_btn)
+            self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
+            return None
+
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
