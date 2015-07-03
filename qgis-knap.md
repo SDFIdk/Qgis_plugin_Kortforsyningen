@@ -34,7 +34,7 @@ projekt filen, og `name` definerer navnet på kategorien i knappen.
 
 Her eksemplificeret med *Baggrundskort*, hvor *Baggrundskort.qgs* indeholder 6 lag. Disse præsenteres i knappen med de i QGIS angivne navne.
 
-![](/Users/telling/Septima/qgis-kf-knappen/NylmHU1Ffg.png)
+![](http://telling.xyz/uploads/NylmHU1Ffg.png)
 
 Inden man offentliggører sin QGIS projekt fil, er det væsentligt at man udskifter password og brugernavn filen. Åbnes QGIS projektet i en tekst editor, skal der i datasource elementerne udskiftes kodeord og brugernavn til udskiftnings variablene `{{kf_username}}` og `{{kf_password}}`
 
