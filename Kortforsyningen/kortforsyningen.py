@@ -7,7 +7,7 @@
                               -------------------
         begin                : 2015-05-01
         git sha              : $Format:%H$
-        copyright            : (C) 2015 by Septima P/S
+        copyright            : (C) 2016 by Septima P/S
         email                : kontakt@septima.dk
  ***************************************************************************/
 
