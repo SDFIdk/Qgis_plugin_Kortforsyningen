@@ -3,7 +3,7 @@
 /***************************************************************************
  KortforsyningenSettingsDialog
                                  A QGIS plugin
- Nem adgang til kortforsyningens wms
+ Easy access to WMS from Kortforsyningen
                              -------------------
         begin                : 2015-05-01
         git sha              : $Format:%H$

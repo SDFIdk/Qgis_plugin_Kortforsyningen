@@ -9,7 +9,7 @@
 [general]
 name=Kortforsyningen
 qgisMinimumVersion=2.0
-description=Nem adgang til Kortforsyningens services
+description=Easy access to the WMS from Kortforsyningen
 version=0.1
 author=Septima P/S
 email=kontakt@septima.dk

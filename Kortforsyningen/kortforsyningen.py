@@ -3,7 +3,7 @@
 /***************************************************************************
  Kortforsyningen
                                  A QGIS plugin
- Nem adgang til kortforsyningens wms
+ Easy access to WMS from Kortforsyningen (A service by The Danish geodataservice. Styrelsen for Dataforsyning og Effektivisering)
                               -------------------
         begin                : 2015-05-01
         git sha              : $Format:%H$
