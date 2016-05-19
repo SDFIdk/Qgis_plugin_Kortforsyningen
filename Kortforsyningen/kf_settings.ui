@@ -39,7 +39,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Brugernavn</string>
+    <string>Username</string>
    </property>
   </widget>
   <widget class="QLabel" name="password_label">
@@ -52,28 +52,28 @@
     </rect>
    </property>
    <property name="text">
-    <string>Kodeord</string>
+    <string>Password</string>
    </property>
   </widget>
   <widget class="QCheckBox" name="remember_settings">
    <property name="geometry">
     <rect>
-     <x>120</x>
+     <x>90</x>
      <y>140</y>
      <width>121</width>
      <height>18</height>
     </rect>
    </property>
    <property name="text">
-    <string>Husk oplysninger</string>
+    <string>Remember settings</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="username">
    <property name="geometry">
     <rect>
-     <x>120</x>
+     <x>89</x>
      <y>60</y>
-     <width>250</width>
+     <width>281</width>
      <height>31</height>
     </rect>
    </property>
@@ -81,9 +81,9 @@
   <widget class="QLineEdit" name="password">
    <property name="geometry">
     <rect>
-     <x>120</x>
+     <x>89</x>
      <y>100</y>
-     <width>250</width>
+     <width>281</width>
      <height>31</height>
     </rect>
    </property>
@@ -100,14 +100,14 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>290</x>
+     <x>310</x>
      <y>140</y>
-     <width>81</width>
+     <width>61</width>
      <height>18</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;a href=&quot;http://download.kortforsyningen.dk//content/opret-mig-som-bruger&quot;&gt;Opret bruger&lt;/a&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;a href=&quot;http://download.kortforsyningen.dk//content/opret-mig-som-bruger&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Create user&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="openExternalLinks">
     <bool>true</bool>
@@ -116,14 +116,14 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>20</y>
-     <width>181</width>
-     <height>31</height>
+     <x>28</x>
+     <y>10</y>
+     <width>211</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:24pt;&quot;&gt;Kortforsyningen&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:22pt;&quot;&gt;Kortforsyningen&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
  </widget>
