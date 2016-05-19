@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Kortforsyningen indstillinger</string>
+   <string>Access to Kortforsyningen.dk</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">

@@ -19,7 +19,7 @@
    <cursorShape>ArrowCursor</cursorShape>
   </property>
   <property name="windowTitle">
-   <string>Om pluginet</string>
+   <string>About the plugin</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <property name="margin">
