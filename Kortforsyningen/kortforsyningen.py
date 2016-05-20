@@ -36,6 +36,7 @@ from urllib2 import urlopen, URLError, HTTPError
 import json
 import codecs
 from kortforsyningen_about import KFAboutDialog
+from PyQt4.QtCore import QSettings, QTranslator, qVersion
 
 from project import QgisProject
 CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
@@ -81,6 +82,20 @@ class Kortforsyningen:
 
         # Check if we have a version, and act accordingly
         self.read_config()
+
+        # initialize locale
+        locale = QSettings().value('locale/userLocale')[0:2]
+        locale_path = os.path.join(
+            self.path,
+            'i18n',
+            '{}.qm'.format(locale))
+
+        if os.path.exists(locale_path):
+            self.translator = QTranslator()
+            self.translator.load(locale_path)
+
+            if qVersion() > '4.3.3':
+                QCoreApplication.installTranslator(self.translator)
 
     def read_about_page(self):
         load_remote_about = True
