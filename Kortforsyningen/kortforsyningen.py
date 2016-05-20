@@ -3,11 +3,11 @@
 /***************************************************************************
  Kortforsyningen
                                  A QGIS plugin
- Nem adgang til kortforsyningens wms
+ Easy access to WMS from Kortforsyningen (A service by The Danish geodataservice. Styrelsen for Dataforsyning og Effektivisering)
                               -------------------
         begin                : 2015-05-01
         git sha              : $Format:%H$
-        copyright            : (C) 2015 by Septima P/S
+        copyright            : (C) 2016 by Septima P/S
         email                : kontakt@septima.dk
  ***************************************************************************/
 
@@ -36,6 +36,7 @@ from urllib2 import urlopen, URLError, HTTPError
 import json
 import codecs
 from kortforsyningen_about import KFAboutDialog
+from PyQt4.QtCore import QSettings, QTranslator, qVersion
 
 from project import QgisProject
 CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
@@ -82,6 +83,20 @@ class Kortforsyningen:
         # Check if we have a version, and act accordingly
         self.read_config()
 
+        # initialize locale
+        locale = QSettings().value('locale/userLocale')[0:2]
+        locale_path = os.path.join(
+            self.path,
+            'i18n',
+            '{}.qm'.format(locale))
+
+        if os.path.exists(locale_path):
+            self.translator = QTranslator()
+            self.translator.load(locale_path)
+
+            if qVersion() > '4.3.3':
+                QCoreApplication.installTranslator(self.translator)
+
     def read_about_page(self):
         load_remote_about = True
 
@@ -97,10 +112,10 @@ class Kortforsyningen:
                 response = urlopen(ABOUT_FILE_URL)
                 about = response.read()
             except Exception, e:
-                log_message(u'Ingen kontakt til konfiguration på ' + ABOUT_FILE_URL + '. Exception: ' + str(e))
+                log_message('No contact to the configuration at ' + ABOUT_FILE_URL + '. Exception: ' + str(e))
                 if not local_file_exists:
                     self.error_menu = QAction(
-                        self.tr('Ingen kontakt til Kortforsyningen'),
+                        self.tr('No contact to Kortforsyning'),
                         self.iface.mainWindow()
                     )
                 return
@@ -129,10 +144,10 @@ class Kortforsyningen:
             try:
                 config = self.get_remote_config_file()
             except Exception, e:
-                log_message(u'Ingen kontakt til konfiguration på ' + CONFIG_FILE_URL + '. Exception: ' + str(e))
+                log_message(u'No contact to the configuration at ' + CONFIG_FILE_URL + '. Exception: ' + str(e))
                 if not local_file_exists:
                     self.error_menu = QAction(
-                        self.tr('Ingen kontakt til Kortforsyningen'),
+                        self.tr('No contact to Kortforsyningen'),
                         self.iface.mainWindow()
                     )
                 return
@@ -240,10 +255,10 @@ class Kortforsyningen:
         # If settings are not set, ask user to set them
         if not self.settings_set():
             widget = self.iface.messageBar().createMessage(
-                'Fejl', 'Udfyld venligst brugernavn og kodeord.'
+                self.tr('Error'), self.tr('Please, fill out username and password')
             )
             settings_btn = QPushButton(widget)
-            settings_btn.setText("Indstillinger")
+            settings_btn.setText(self.tr('Settings'))
             settings_btn.pressed.connect(self.settings_dialog)
             widget.layout().addWidget(settings_btn)
             self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
@@ -268,10 +283,10 @@ class Kortforsyningen:
         else:
             print "Could not load layer"
             widget = self.iface.messageBar().createMessage(
-                'Fejl', u'Kunne ikke indlæse laget. Er brugernavn og password korrekte?'
+                self.tr('Error'), self.tr('Could not load the layer. Is username and password correct?')
             )
             settings_btn = QPushButton(widget)
-            settings_btn.setText("Indstillinger")
+            settings_btn.setText(self.tr("Settings"))
             settings_btn.pressed.connect(self.settings_dialog)
             widget.layout().addWidget(settings_btn)
             self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
@@ -284,7 +299,7 @@ class Kortforsyningen:
         icon_path = ':/plugins/Kortforsyningen/icon.png'
 
         self.menu = QMenu(self.iface.mainWindow().menuBar())
-        self.menu.setObjectName('Kortforsyningen')
+        self.menu.setObjectName(self.tr('Kortforsyningen'))
         self.menu.setTitle(self.tr('Kortforsyningen'))
 
         if self.error_menu:
@@ -318,19 +333,19 @@ class Kortforsyningen:
         # Add settings
         self.settings_menu = QAction(
             QIcon(icon_path),
-            self.tr('Indstillinger'),
+            self.tr('Settings'),
             self.iface.mainWindow()
         )
-        self.settings_menu.setObjectName('Indstillinger')
+        self.settings_menu.setObjectName(self.tr('Settings'))
         self.settings_menu.triggered.connect(self.settings_dialog)
         self.menu.addAction(self.settings_menu)
 
         # Add about
         self.about_menu = QAction(
-            self.tr('Om pluginet'),
+            self.tr('About the plugin'),
             self.iface.mainWindow()
         )
-        self.about_menu.setObjectName('Om pluginet')
+        self.about_menu.setObjectName(self.tr('About the plugin'))
         self.about_menu.triggered.connect(self.about_dialog)
         self.menu.addAction(self.about_menu)
 
