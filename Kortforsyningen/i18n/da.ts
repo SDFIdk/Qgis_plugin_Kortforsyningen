@@ -42,5 +42,41 @@
         <source>Please, fill out username and password</source>
         <translation>Udfyld venligst brugernavn og kodeord.</translation>
     </message>
+    <message>
+        <location filename="kf_settings.ui" line="42"/>
+        <source>Username</source>
+        <translation>Brugernavn</translation>
+    </message>
+</context>
+<context>
+  <name>s</name>
+    <message>
+        <location filename="kf_settings.ui" line="14"/>
+        <source>Access to Kortforsyningen.dk</source>
+        <translation>Adgang til Kortforsyningen.dk</translation>
+    </message>
+    <message>
+        <location filename="kf_settings.ui" line="42"/>
+        <source>Username</source>
+        <translation>Brugernavn</translation>
+    </message>
+    <message>
+        <location filename="kf_settings.ui" line="55"/>
+        <source>Password</source>
+        <translation>Kodeord</translation>
+    </message>
+    <message>
+        <location filename="kf_settings.ui" line="68"/>
+        <source>Remember settings</source>
+        <translation>Gem indstillinger</translation>
+    </message>
+</context>
+<context>
+  <name>Dialog</name>
+    <message>
+        <location filename="aboutKortforsyningen.ui" line="22"/>
+        <source>About the plugin</source>
+        <translation>Om pluginet</translation>
+    </message>
 </context>
 </TS>
