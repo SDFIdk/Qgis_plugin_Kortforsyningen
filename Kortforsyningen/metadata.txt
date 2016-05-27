@@ -25,9 +25,9 @@ email=kontakt@septima.dk
 # Tags are comma separated with spaces allowed
 tags=Danmark, dansk, Kortforsyningen, WMS
 
-homepage=
-tracker=
-repository=
+homepage=https://github.com/Kortforsyningen/Qgis_plugin_Kortforsyningen
+tracker=https://github.com/Kortforsyningen/Qgis_plugin_Kortforsyningen/issues
+repository=https://github.com/Kortforsyningen/Qgis_plugin_Kortforsyningen
 category=Plugins
 icon=icon.png
 # experimental flag

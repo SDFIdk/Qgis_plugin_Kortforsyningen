@@ -39,7 +39,7 @@ from kortforsyningen_about import KFAboutDialog
 from PyQt4.QtCore import QSettings, QTranslator, qVersion
 
 from project import QgisProject
-CONFIG_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/themes.json'
+CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/themes.json'
 ABOUT_FILE_URL = 'http://labs-develop.septima.dk/qgis-kf-knap/about.html'
 FILE_MAX_AGE = datetime.timedelta(hours=12)
 
