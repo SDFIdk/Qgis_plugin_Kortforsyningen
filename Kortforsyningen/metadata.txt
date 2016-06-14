@@ -9,25 +9,27 @@
 [general]
 name=Kortforsyningen
 qgisMinimumVersion=2.0
-description=Easy access to the WMS from Kortforsyningen
+description=The purpose with the Kortforsyningsplugin is to make Web Map Services (WMS) from Kortforsyningen (Danish geodata) easy available for use in QGIS Desktop.In order to use the plugin, a user at Kortforsyningen.dk is required. Enter your username and password in the plugin setting dialogue. If you do not have a Kortforsyning-user create one with the link in the plugin-setting-dialogue.The plugin is developed by Septima (www.septima.dk) for Styrelsen for Dataforsyning og Effektivisering (the Danish Geodata Agency)
+
 version=0.1
-author=Septima P/S
-email=kontakt@septima.dk
+author=Septima P/S (kontakt@septima.dk), developed for Kortforsyningen (dad@sdfe.dk)
+email= dad@sdfe.dk
+
 
 # End of mandatory metadata
 
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-# changelog=Changelog:
-2016-05-19: First release, version 0.1
+changelog=Changelog:
+2016-06-01: First release, version 0.1
 
 # Tags are comma separated with spaces allowed
 tags=Danmark, dansk, Kortforsyningen, WMS
 
-homepage=
-tracker=
-repository=
+homepage=https://github.com/Kortforsyningen/Qgis_plugin_Kortforsyningen
+tracker=https://github.com/Kortforsyningen/Qgis_plugin_Kortforsyningen/issues
+repository=https://github.com/Kortforsyningen/Qgis_plugin_Kortforsyningen
 category=Plugins
 icon=icon.png
 # experimental flag
