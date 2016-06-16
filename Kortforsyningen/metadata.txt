@@ -15,6 +15,11 @@ version=0.1
 author=Septima P/S (kontakt@septima.dk), developed for Kortforsyningen (kortforsyningen@gmail.com)
 email= kortforsyningen@gmail.com
 
+about=
+    This plugin makes it easy to use the WMS-service with Danish geodata from Kortforsyningen.
+    A new menu is added to QGIS which contains WMS' ordered by category.
+    The plugin is developed by Septima and funded by Styrelsen for Dataforsyning og Effektivisering.
+
 
 # End of mandatory metadata
 
