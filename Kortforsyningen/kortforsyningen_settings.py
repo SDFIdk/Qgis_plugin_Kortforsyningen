@@ -7,8 +7,8 @@
                              -------------------
         begin                : 2015-05-01
         git sha              : $Format:%H$
-        copyright            : (C) 2015 by Septima P/S
-        email                : kontakt@septima.dk
+        copyright            : (C) 2015 Agency for Data supply and Efficiency
+        email                : kortforsyningen@gmail.com
  ***************************************************************************/
 
 /***************************************************************************

@@ -8,9 +8,9 @@
 
 """
 
-__author__ = 'kontakt@septima.dk'
+__author__ = 'kortforsyningen@gmail.com'
 __date__ = '2015-05-01'
-__copyright__ = 'Copyright 2015, Septima P/S'
+__copyright__ = '2015 Agency for Data supply and Efficiency'
 
 import unittest
 
