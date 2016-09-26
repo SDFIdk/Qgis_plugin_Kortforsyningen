@@ -179,7 +179,7 @@ htmlhelp_basename = 'TemplateClassdoc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'KortForsyningen.tex', u'KortForsyningen Documentation',
-   u'Styrelsen for Datforsyning og Effektivisering', 'manual'),
+   u'Styrelsen for Dataforsyning og Effektivisering', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -212,5 +212,5 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'TemplateClass', u'KortForsyningen Documentation',
-     [u'Styrelsen for Datforsyning og Effektivisering'], 1)
+     [u'Styrelsen for Dataforsyning og Effektivisering'], 1)
 ]
