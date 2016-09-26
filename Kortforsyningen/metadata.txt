@@ -11,7 +11,7 @@ name=Kortforsyningen
 qgisMinimumVersion=2.0
 description=The plugin makes it easy to access Web Map Services (WMS) from Kortforsyningen (Danish geodata) in QGIS Desktop.
 In order to use the plugin, a Kortforsyningen user account is required. 
-If yoy already have an account, please enter your username and password in the plugin setting dialogue . 
+If you already have an account, please enter your username and password in the plugin setting dialogue . 
 If you do not have an account, please follow the link in the setting dialogue and create one.
 The plugin is developed by Danish Agency for Data supply and Efficiency (www.kortforsyningen.dk, kortforsyningen@gmail.com)
 
