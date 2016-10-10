@@ -9,7 +9,7 @@
     </message>
     <message>
         <location filename="kortforsyningen.py" line="102"/>
-        <source>No contact to Kortforsyning</source>
+        <source>No contact to Kortforsyningen</source>
         <translation>Ingen kontakt til Kortforsyningen</translation>
     </message>
     <message>
