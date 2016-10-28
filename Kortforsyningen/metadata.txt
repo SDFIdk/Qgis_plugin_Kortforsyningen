@@ -9,6 +9,7 @@
 [general]
 name=Kortforsyningen
 qgisMinimumVersion=2.0
+
 The purpose of Kortforsyningen plugin is to make Web Map Services (WMS) from Kortforsyningen (Danish Map supply) easily available for use in QGIS Desktop.
 In order to use the plugin, a user at Kortforsyningen.dk is required. 
 Enter your username and password in the plugin setting dialogue. 
