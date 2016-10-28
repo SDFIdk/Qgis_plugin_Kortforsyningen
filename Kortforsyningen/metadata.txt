@@ -9,23 +9,13 @@
 [general]
 name=Kortforsyningen
 qgisMinimumVersion=2.0
-Easy acccess to Services from Kortforsyningen (Danish Map supply) in QGIS Desktop.
+Describtion=Easy acccess to Services from Kortforsyningen (Danish Map supply) in QGIS Desktop.
 
-version=0.1
+version=0.2
 author= Danish Agency for Data supply and Efficiency
 email= kortforsyningen@gmail.com
 
-about=
-This plugin makes it easy to use the services from Danish Map supply aka Kortforsyningen.
-A new menu is added to QGIS which contains services ordered by category.
-The plugin is developed by Danish Map supply (Agency for Data Supply and Efficiency).
-
-
-In order to use the plugin, a user at Kortforsyningen.dk is required. 
-Enter your username and password in the plugin setting dialogue. 
-If you do not have a Kortforsyning user please create one using the link in the plugin setting dialogue.
-The plugin is developed by the Agency for Data Supply and Efficiency (fka Danish Geodata Agency)
-(www.kortforsyningen.dk, kortforsyningen@gmail.com)
+about=This plugin makes it easy to use the services from Danish Map supply aka Kortforsyningen. A new menu is added to QGIS which contains services ordered by category. The plugin is developed by Danish Map supply (Agency for Data Supply and Efficiency). In order to use the plugin, a user at Kortforsyningen.dk is required.  Enter your username and password in the plugin setting dialogue.  If you do not have a Kortforsyning user please create one using the link in the plugin setting dialogue. The plugin is developed by the Agency for Data Supply and Efficiency (fka Danish Geodata Agency)(www.kortforsyningen.dk, kortforsyningen@gmail.com)
 
 
 
@@ -34,8 +24,9 @@ The plugin is developed by the Agency for Data Supply and Efficiency (fka Danish
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=Changelog:
+changelog=
 2016-06-01: First release, version 0.1
+2016-06-01: version 0.2, Minor text changes and logo change
 
 # Tags are comma separated with spaces allowed
 tags=Agency for Data Supply and Efficiency, Danish Map supply, Open data,  Styrelsen for dataforsyning og effektivisering, Danish, Danmark, Denmark, INSPIRE, SDFE, WMS, dansk, kortforsyningen, WMS
