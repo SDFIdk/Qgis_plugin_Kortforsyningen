@@ -1,5 +1,5 @@
 # QGIS KF-Knappen
-Kortforsyningen knap til QGIS, som gør det nemmere at tilføje wms fra
+Kortforsyningen knap til QGIS, som gør det nemmere at tilføje WMS fra
 kortforsyningen.
 
 ## Til udvikling
