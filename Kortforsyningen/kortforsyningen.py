@@ -170,6 +170,7 @@ class Kortforsyningen:
                                     'actions': []
                                 }
                                 for qlr_item in qlr_items:
+                                    category_node.takeChild(qlr_item)
                                     name = ""
                                     index = str(self.node_count)
                                     self.nodes_by_index[index] = qlr_item
