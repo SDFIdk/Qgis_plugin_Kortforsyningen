@@ -54,6 +54,7 @@ from kortforsyningen_settings import(
 )
 from kortforsyningen_about import KFAboutDialog
 import resources_rc
+from qlr_file import QlrFile
 
 # CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/themes.json'
 CONFIG_FILE_URL = 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data.qlr'
@@ -146,8 +147,31 @@ class Kortforsyningen:
 
         with codecs.open(self.local_about_file, 'w') as f:
             f.write(content)
-
+            
     def read_config(self):
+        self.category_menu_items = []
+        config = self.get_config()
+        if config:
+            self.qlr_file = QlrFile(config)
+            groups_with_layers = self.qlr_file.get_groups_with_layers()
+            for group in groups_with_layers:
+                category_menu_item = {
+                    'name': group['name'],
+                    'actions': []
+                }
+                for layer in group['layers']:
+                    if self.user_has_access(layer['service']):
+                        category_menu_item['actions'].append({
+                            'name': layer['name'],
+                            'id': layer['id']
+                            }
+                        )
+                self.category_menu_items.append(category_menu_item)
+
+    def user_has_access(self, service_name):
+        return True
+
+    def read_config_org(self):
         self.category_menu_items = []
         config = self.get_config()
         if config:
@@ -257,10 +281,29 @@ class Kortforsyningen:
     def open_node(self, id):
         #node = self.nodes_by_index[node_index]
         #clone = node.clone()
-        layers = QgsMapLayerRegistry.instance().mapLayers()
-        layer = QgsMapLayerRegistry.instance().mapLayer(id)
-        QgsProject.instance().layerTreeRoot().addLayer(layer)
+        node = self.qlr_file.get_maplayer_node(id)
+        #layers = QgsMapLayerRegistry.instance().mapLayers()
+        #layer = QgsMapLayerRegistry.instance().mapLayer(id)
+        #QgsProject.instance().layerTreeRoot().addLayer(layer)
         #self.open_layer(self.local_config_file, id)
+        QgsProject.instance().read(node)
+        layer = QgsMapLayerRegistry.instance().mapLayer(id)
+        if layer:
+            self.iface.legendInterface().refreshLayerSymbology(layer)
+            self.iface.legendInterface().moveLayer(layer, 0)
+            self.iface.legendInterface().refreshLayerSymbology(layer)
+            return layer
+        else:
+            print "Could not load layer"
+            widget = self.iface.messageBar().createMessage(
+                self.tr('Error'), self.tr('Could not load the layer. Is username and password correct?')
+            )
+            settings_btn = QPushButton(widget)
+            settings_btn.setText(self.tr("Settings"))
+            settings_btn.pressed.connect(self.settings_dialog)
+            widget.layout().addWidget(settings_btn)
+            self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
+            return None
 
     def get_config(self):
         config = None
@@ -289,8 +332,9 @@ class Kortforsyningen:
         return config
 
     def read_local_config_file(self):
-        with codecs.open(self.local_config_file, 'r', 'utf-8') as f:
-            return f.read()
+        return file(unicode(self.local_config_file)).read()
+        #with codecs.open(self.local_config_file, 'r', 'utf-8') as f:
+        #    return f.read()
 
     def get_remote_config_file(self):
         response = urlopen(CONFIG_FILE_URL)
