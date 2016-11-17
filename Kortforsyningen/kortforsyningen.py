@@ -169,6 +169,7 @@ class Kortforsyningen:
                 self.category_menu_items.append(category_menu_item)
 
     def user_has_access(self, service_name):
+        #http://services.kortforsyningen.dk/service?request=GetServices&login=septima&password=fgd4Septima
         return True
 
     def read_config_org(self):
