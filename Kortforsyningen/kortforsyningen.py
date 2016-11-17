@@ -100,7 +100,7 @@ class Kortforsyningen:
         self.read_about_page()
 
         # Check if we have a version, and act accordingly
-        self.read_config()
+        #self.read_config()
 
         # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
@@ -154,6 +154,7 @@ class Kortforsyningen:
             doc = QtXml.QDomDocument()
             if doc.setContent(config):
                 group = QgsLayerTreeGroup()
+                #TBD This restarts project 
                 QgsLayerDefinition.loadLayerDefinition(doc, group)
                 top_nodes = group.children()
                 for top_node in top_nodes:
@@ -176,17 +177,23 @@ class Kortforsyningen:
                                     self.nodes_by_index[index] = qlr_item
                                     self.node_count = self.node_count + 1
                                     if isinstance(qlr_item, QgsLayerTreeLayer):
-                                        name = qlr_item.layerName()
+                                        layer = qlr_item.layer()
+                                        #name = qlr_item.layerName()
+                                        #id = qlr_item.layerId()
+                                        name = layer.layerName()
+                                        id = layer.layerId()
+                                        category_menu_item['actions'].append(
+                                            {'name': name,
+                                             'node_index': index,
+                                             'id': id
+                                            }
+                                        )
                                     elif isinstance(qlr_item, QgsLayerTreeGroup):
                                         name = qlr_item.name()
-                                    category_menu_item['actions'].append(
-                                        {'name': name,
-                                         'node_index': index
-                                        }
-                                    )
                                 self.category_menu_items.append(category_menu_item)
                             
     def initGui(self):
+        self.read_config()
         self.initMyGui()
         
     def initMyGui(self):
@@ -206,13 +213,13 @@ class Kortforsyningen:
         for category_menu_item in self.category_menu_items:
             category_menu = QMenu()
             category_menu.setTitle(category_menu_item['name'])
-            helper = lambda _node_index: lambda: self.open_node(_node_index)
+            helper = lambda _id: lambda: self.open_node(_id)
             for action in category_menu_item['actions']:
                 q_action = QAction(
                     action['name'], self.iface.mainWindow()
                 )
                 q_action.triggered.connect(
-                    helper(action['node_index'])
+                    helper(action['id'])
                 )
                 category_menu.addAction(q_action)
             self.category_menus.append(category_menu)
@@ -247,10 +254,13 @@ class Kortforsyningen:
             self.iface.firstRightStandardMenu().menuAction(), self.menu
         )
         
-    def open_node(self, node_index):
-        node = self.nodes_by_index[node_index]
-        clone = node.clone()
-        QgsProject.instance().layerTreeRoot().insertChildNode(0, clone)
+    def open_node(self, id):
+        #node = self.nodes_by_index[node_index]
+        #clone = node.clone()
+        layers = QgsMapLayerRegistry.instance().mapLayers()
+        layer = QgsMapLayerRegistry.instance().mapLayer(id)
+        QgsProject.instance().layerTreeRoot().addLayer(layer)
+        #self.open_layer(self.local_config_file, id)
 
     def get_config(self):
         config = None
@@ -295,7 +305,7 @@ class Kortforsyningen:
             os.remove(self.local_config_file)
 
         # Write new version
-        with codecs.open(self.local_config_file, 'w', 'utf-8') as f:
+        with codecs.open(self.local_config_file, 'wU', 'utf-8') as f:
             f.write(contents)
 
     # noinspection PyMethodMayBeStatic
