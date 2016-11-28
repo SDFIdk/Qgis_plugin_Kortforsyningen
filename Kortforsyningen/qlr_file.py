@@ -4,15 +4,26 @@ from PyQt4.QtCore import *
 import os
 import urlparse
 import urllib
+from PyQt4 import QtCore
 
 class QlrFile():
 
     def __init__(self, xml):
         #self.filename = filename
         #xml = file(unicode(filename)).read()
-        self.doc = QtXml.QDomDocument()
-        self.doc.setContent(xml)
-        
+        try:
+            #txmlStream = QtCore.QTextStream(xml);
+            #txmlStream.setCodec("UTF-8");
+            #txmlStream.setAutoDetectUnicode(true);
+            
+            #d = txmlStream.readAll()
+            
+            self.doc = QtXml.QDomDocument()
+            #xmlu = QtCore.QString(xml)
+            self.doc.setContent(xml)
+        except Exception, e:
+            b= 3
+            
     def get_groups_with_layers(self):
         #result: [{'name': groupName, 'layers': [{'name': layerName, 'id': layerId}]}]
         result = []

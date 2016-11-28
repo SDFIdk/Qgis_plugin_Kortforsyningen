@@ -36,7 +36,11 @@ class KFSettings(SettingManager):
         self.addSetting('username', 'string', 'global', '')
         self.addSetting('password', 'string', 'global', '')
         self.addSetting('remember_settings', 'bool', 'global', False)
-
+        
+    def is_set(self):
+        if self.value('username') and self.value('password'):
+            return True
+        return False
 
 class KFSettingsDialog(QtGui.QDialog, FORM_CLASS, SettingDialog):
     def __init__(self, settings):

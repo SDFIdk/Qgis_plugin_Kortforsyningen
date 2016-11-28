@@ -20,7 +20,6 @@
  *                                                                         *
  ***************************************************************************/
 """
-import json
 import codecs
 import os.path
 import datetime
@@ -55,16 +54,15 @@ from kortforsyningen_settings import(
 from kortforsyningen_about import KFAboutDialog
 import resources_rc
 from qlr_file import QlrFile
+from config import Config
 
 # CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/themes.json'
 CONFIG_FILE_URL = 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data.qlr'
 ABOUT_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/about.html'
 FILE_MAX_AGE = datetime.timedelta(hours=12)
 
-
 def log_message(message):
     QgsMessageLog.logMessage(message, 'Kortforsyningen plugin')
-
 
 class Kortforsyningen:
     """QGIS Plugin Implementation."""
@@ -80,33 +78,32 @@ class Kortforsyningen:
         # Save reference to the QGIS interface
         self.iface = iface
         self.settings = KFSettings()
-        self.path = QFileInfo(os.path.realpath(__file__)).path()
+        
+        path = QFileInfo(os.path.realpath(__file__)).path()
+        kf_path = path + '/kf/'
+        if not os.path.exists(kf_path):
+            os.makedirs(kf_path)
+            
+        self.settings.addSetting('cache_path', 'string', 'global', kf_path)
+        self.settings.addSetting('kf_qlr_url', 'string', 'global', CONFIG_FILE_URL)
 
-        self.kf_path = self.path + '/kf/'
-        if not os.path.exists(self.kf_path):
-            os.makedirs(self.kf_path)
-
-        self.local_config_file = self.kf_path + 'kortforsyning_data.qlr'
-        self.local_about_file = self.kf_path + 'about.html'
+        self.local_about_file = kf_path + 'about.html'
 
         # An error menu object, set to None.
         self.error_menu = None
 
         # Categories
-        self.category_menu_items = []
+        self.categories = []
         self.nodes_by_index = {}
         self.node_count = 0
 
         # Read the about page
         self.read_about_page()
 
-        # Check if we have a version, and act accordingly
-        #self.read_config()
-
         # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
         locale_path = os.path.join(
-            self.path,
+             path,
             'i18n',
             '{}.qm'.format(locale))
 
@@ -148,80 +145,12 @@ class Kortforsyningen:
         with codecs.open(self.local_about_file, 'w') as f:
             f.write(content)
             
-    def read_config(self):
-        self.category_menu_items = []
-        config = self.get_config()
-        if config:
-            self.qlr_file = QlrFile(config)
-            groups_with_layers = self.qlr_file.get_groups_with_layers()
-            for group in groups_with_layers:
-                category_menu_item = {
-                    'name': group['name'],
-                    'actions': []
-                }
-                for layer in group['layers']:
-                    if self.user_has_access(layer['service']):
-                        category_menu_item['actions'].append({
-                            'name': layer['name'],
-                            'id': layer['id']
-                            }
-                        )
-                self.category_menu_items.append(category_menu_item)
-
-    def user_has_access(self, service_name):
-        #http://services.kortforsyningen.dk/service?request=GetServices&login=septima&password=fgd4Septima
-        return True
-
-    def read_config_org(self):
-        self.category_menu_items = []
-        config = self.get_config()
-        if config:
-            doc = QtXml.QDomDocument()
-            if doc.setContent(config):
-                group = QgsLayerTreeGroup()
-                #TBD This restarts project 
-                QgsLayerDefinition.loadLayerDefinition(doc, group)
-                top_nodes = group.children()
-                for top_node in top_nodes:
-                    category_nodes = top_node.children()
-                    for category_node in category_nodes:
-                        #Only show categories...
-                        if isinstance(category_node, QgsLayerTreeGroup):
-                            #... if they are a group 
-                            qlr_items = category_node.children()
-                            if qlr_items:
-                                #... and have children
-                                category_menu_item = {
-                                    'name': category_node.name(),
-                                    'actions': []
-                                }
-                                for qlr_item in qlr_items:
-                                    category_node.takeChild(qlr_item)
-                                    name = ""
-                                    index = str(self.node_count)
-                                    self.nodes_by_index[index] = qlr_item
-                                    self.node_count = self.node_count + 1
-                                    if isinstance(qlr_item, QgsLayerTreeLayer):
-                                        layer = qlr_item.layer()
-                                        #name = qlr_item.layerName()
-                                        #id = qlr_item.layerId()
-                                        name = layer.layerName()
-                                        id = layer.layerId()
-                                        category_menu_item['actions'].append(
-                                            {'name': name,
-                                             'node_index': index,
-                                             'id': id
-                                            }
-                                        )
-                                    elif isinstance(qlr_item, QgsLayerTreeGroup):
-                                        name = qlr_item.name()
-                                self.category_menu_items.append(category_menu_item)
-                            
     def initGui(self):
-        self.read_config()
-        self.initMyGui()
+        self.createMenu()
         
-    def initMyGui(self):
+    def createMenu(self):
+        self.config = Config(self.settings)
+        self.categories = self.config.get_categories()
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = ':/plugins/Kortforsyningen/icon.png'
@@ -235,16 +164,16 @@ class Kortforsyningen:
 
         # Add menu object for each theme
         self.category_menus = []
-        for category_menu_item in self.category_menu_items:
+        for category in self.categories:
             category_menu = QMenu()
-            category_menu.setTitle(category_menu_item['name'])
+            category_menu.setTitle(category['name'])
             helper = lambda _id: lambda: self.open_node(_id)
-            for action in category_menu_item['actions']:
+            for selectable in category['selectables']:
                 q_action = QAction(
-                    action['name'], self.iface.mainWindow()
+                    selectable['name'], self.iface.mainWindow()
                 )
                 q_action.triggered.connect(
-                    helper(action['id'])
+                    helper(selectable['id'])
                 )
                 category_menu.addAction(q_action)
             self.category_menus.append(category_menu)
@@ -280,18 +209,12 @@ class Kortforsyningen:
         )
         
     def open_node(self, id):
-        #node = self.nodes_by_index[node_index]
-        #clone = node.clone()
-        node = self.qlr_file.get_maplayer_node(id)
-        #layers = QgsMapLayerRegistry.instance().mapLayers()
-        #layer = QgsMapLayerRegistry.instance().mapLayer(id)
-        #QgsProject.instance().layerTreeRoot().addLayer(layer)
-        #self.open_layer(self.local_config_file, id)
+        node = self.config.get_kf_maplayer_node(id)
         QgsProject.instance().read(node)
         layer = QgsMapLayerRegistry.instance().mapLayer(id)
         if layer:
             self.iface.legendInterface().refreshLayerSymbology(layer)
-            self.iface.legendInterface().moveLayer(layer, 0)
+            #self.iface.legendInterface().moveLayer(layer, 0)
             self.iface.legendInterface().refreshLayerSymbology(layer)
             return layer
         else:
@@ -305,53 +228,6 @@ class Kortforsyningen:
             widget.layout().addWidget(settings_btn)
             self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
             return None
-
-    def get_config(self):
-        config = None
-        load_remote_config = True
-
-        local_file_exists = os.path.exists(self.local_config_file)
-        if local_file_exists:
-            config = self.read_local_config_file()
-            local_file_time = datetime.datetime.fromtimestamp(
-                os.path.getmtime(self.local_config_file)
-            )
-            load_remote_config = local_file_time < datetime.datetime.now() - FILE_MAX_AGE
-
-        if load_remote_config:
-            try:
-                config = self.get_remote_config_file()
-            except Exception, e:
-                log_message(u'No contact to the configuration at ' + CONFIG_FILE_URL + '. Exception: ' + str(e))
-                if not local_file_exists:
-                    self.error_menu = QAction(
-                        self.tr('No contact to Kortforsyningen'),
-                        self.iface.mainWindow()
-                    )
-                return
-            self.write_config_file(config)
-        return config
-
-    def read_local_config_file(self):
-        return file(unicode(self.local_config_file)).read()
-        #with codecs.open(self.local_config_file, 'r', 'utf-8') as f:
-        #    return f.read()
-
-    def get_remote_config_file(self):
-        response = urlopen(CONFIG_FILE_URL)
-        content = response.read()
-        content = self.replace_variables(content)
-        return content
-
-    def write_config_file(self, contents):
-        """We only call this function IF we have a new version downloaded"""
-        # Remove old versions file
-        if os.path.exists(self.local_config_file):
-            os.remove(self.local_config_file)
-
-        # Write new version
-        with codecs.open(self.local_config_file, 'wU', 'utf-8') as f:
-            f.write(contents)
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -383,29 +259,10 @@ class Kortforsyningen:
             i += 1
         return None
 
-    def replace_variables(self, text):
-        """
-        :param text: Input text
-        :return: text where variables has been replaced
-        """
-        # TODO: If settings are not set then show the settings dialog
-        replace_vars = {}
-        replace_vars["kf_username"] = self.settings.value('username')
-        replace_vars["kf_password"] = self.settings.value('password')
-        for i, j in replace_vars.iteritems():
-            text = text.replace("{{" + str(i) + "}}", str(j))
-        return text
-
-    def settings_set(self):
-        if self.settings.value('username') and self.settings.value('password'):
-            return True
-
-        return False
-
     def open_layer(self, filename, layerid):
         """Opens the specified layerid"""
         # If settings are not set, ask user to set them
-        if not self.settings_set():
+        if not self.settings.is_set():
             widget = self.iface.messageBar().createMessage(
                 self.tr('Error'), self.tr('Please, fill out username and password')
             )
@@ -416,32 +273,6 @@ class Kortforsyningen:
             self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
             return
 
-        with open(filename, 'r') as f:
-            xml = f.read()
-        xml = self.replace_variables(xml)
-        # QtXml takes only bytes. We cant give it unicode.
-        doc = QtXml.QDomDocument()
-        doc.setContent(xml)
-        node = self.getFirstChildByTagNameValue(
-            doc.documentElement(), 'maplayer', 'id', layerid
-        )
-        QgsProject.instance().read(node)
-        layer = QgsMapLayerRegistry.instance().mapLayer(layerid)
-        if layer:
-            self.iface.legendInterface().refreshLayerSymbology(layer)
-            self.iface.legendInterface().moveLayer(layer, 0)
-            self.iface.legendInterface().refreshLayerSymbology(layer)
-            return layer
-        else:
-            print "Could not load layer"
-            widget = self.iface.messageBar().createMessage(
-                self.tr('Error'), self.tr('Could not load the layer. Is username and password correct?')
-            )
-            settings_btn = QPushButton(widget)
-            settings_btn.setText(self.tr("Settings"))
-            settings_btn.pressed.connect(self.settings_dialog)
-            widget.layout().addWidget(settings_btn)
-            self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
             return None
 
     def settings_dialog(self):
@@ -464,14 +295,17 @@ class Kortforsyningen:
             del dlg
 
     def unload(self):
-        pass
-    
-    def my_unload(self):
-        """Removes the plugin menu item and icon from QGIS GUI."""
         # Remove settings if user not asked to keep them
         if self.settings.value('remember_settings') is False:
             self.settings.setValue('username', '')
             self.settings.setValue('password', '')
+        self.clearMenu();
+        
+    def reloadMenu(self):
+        self.clearMenu()
+        self.createMenu()
+    
+    def clearMenu(self):
         # Remove the submenus
         for submenu in self.category_menus:
             submenu.deleteLater()
