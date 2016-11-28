@@ -56,8 +56,9 @@ import resources_rc
 from qlr_file import QlrFile
 from config import Config
 
-# CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/themes.json'
-CONFIG_FILE_URL = 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data.qlr'
+#CONFIG_FILE_URL = 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data.qlr'
+CONFIG_FILE_URL = 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data_inkl_restricteddata.qlr'
+
 ABOUT_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/about.html'
 FILE_MAX_AGE = datetime.timedelta(hours=12)
 
