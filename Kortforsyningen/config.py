@@ -51,8 +51,13 @@ class Config:
     def reload(self):
         if self.settings.is_set():
             self.allowed_kf_services = self.get_allowed_kf_services()
-            self.kf_qlr_file, self.kf_categories = self.get_kf_config()
-            self.categories = self.kf_categories
+            
+            self.kf_qlr_file = self.get_kf_qlr_file()
+            self.kf_categories = self.get_kf_categories()
+            
+            self.custom_categories = self.get_custom_categories()
+            
+            self.categories = self.kf_categories + self.custom_categories
 
     def get_allowed_kf_services(self):
         allowed_kf_services = {}
@@ -78,7 +83,6 @@ class Config:
                 j = j + 1
             i = i + 1
         return allowed_kf_services
-        
 
     def get_categories(self):
          return self.categories
@@ -86,32 +90,32 @@ class Config:
     def get_kf_maplayer_node(self, id):
          return self.kf_qlr_file.get_maplayer_node(id)
      
-    def get_kf_config(self):
+    def get_kf_categories(self):
         kf_categories = []
-        kf_qlr_file = self.get_kf_qlr_file()
-        if kf_qlr_file:
-            groups_with_layers = kf_qlr_file.get_groups_with_layers()
-            for group in groups_with_layers:
-                kf_category = {
-                    'name': group['name'],
-                    'selectables': []
-                }
-                for layer in group['layers']:
-                    if self.user_has_access(layer['service']):
-                        kf_category['selectables'].append({
-                            'type': 'layer',
-                            'source': 'kf',
-                            'name': layer['name'],
-                            'id': layer['id']
-                            }
-                        )
+        groups_with_layers = self.kf_qlr_file.get_groups_with_layers()
+        for group in groups_with_layers:
+            kf_category = {
+                'name': group['name'],
+                'selectables': []
+            }
+            for layer in group['layers']:
+                if self.user_has_access(layer['service']):
+                    kf_category['selectables'].append({
+                        'type': 'layer',
+                        'source': 'kf',
+                        'name': layer['name'],
+                        'id': layer['id']
+                        }
+                    )
+            if len(kf_category['selectables']) > 0:
                 kf_categories.append(kf_category)
-            return kf_qlr_file, kf_categories
-        else:
-            return None, []
+        return kf_categories
 
     def user_has_access(self, service_name):
-        return True
+        return service_name in self.allowed_kf_services['any_type']['services']
+
+    def get_custom_categories(self):
+        return []
 
     def get_kf_qlr_file(self):
         config = None
