@@ -56,6 +56,10 @@ import resources_rc
 from qlr_file import QlrFile
 from config import Config
 
+#Real URL"
+#CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/qgis_plugin.qlr'
+
+#Develop
 #CONFIG_FILE_URL = 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data.qlr'
 CONFIG_FILE_URL = 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data_inkl_restricteddata.qlr'
 
@@ -154,7 +158,8 @@ class Kortforsyningen:
         self.categories = self.config.get_categories()
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = ':/plugins/Kortforsyningen/icon.png'
+        #icon_path = ':/plugins/Kortforsyningen/icon.png'
+        icon_path = ':/plugins/Kortforsyningen/settings-cog.png'
 
         self.menu = QMenu(self.iface.mainWindow().menuBar())
         self.menu.setObjectName(self.tr('Kortforsyningen'))
@@ -168,14 +173,20 @@ class Kortforsyningen:
         for category in self.categories:
             category_menu = QMenu()
             category_menu.setTitle(category['name'])
-            helper = lambda _id: lambda: self.open_node(_id)
+            kf_helper = lambda _id: lambda: self.open_kf_node(_id)
+            local_helper = lambda _id: lambda: self.open_local_node(_id)
             for selectable in category['selectables']:
                 q_action = QAction(
                     selectable['name'], self.iface.mainWindow()
                 )
-                q_action.triggered.connect(
-                    helper(selectable['id'])
-                )
+                if selectable['source'] == 'kf':
+                    q_action.triggered.connect(
+                        kf_helper(selectable['id'])
+                    )
+                else:
+                    q_action.triggered.connect(
+                        local_helper(selectable['id'])
+                    )
                 category_menu.addAction(q_action)
             self.category_menus.append(category_menu)
 
@@ -209,15 +220,15 @@ class Kortforsyningen:
             self.iface.firstRightStandardMenu().menuAction(), self.menu
         )
         
-    def open_node(self, id):
+    def open_local_node(self, id):
+        node = self.config.get_local_maplayer_node(id)
+        self.open_node(node, id)
+
+    def open_kf_node(self, id):
         node = self.config.get_kf_maplayer_node(id)
-        QgsProject.instance().read(node)
-        layer = QgsMapLayerRegistry.instance().mapLayer(id)
+        layer = self.open_node(node, id)
         if layer:
-            self.iface.legendInterface().refreshLayerSymbology(layer)
-            #self.iface.legendInterface().moveLayer(layer, 0)
-            self.iface.legendInterface().refreshLayerSymbology(layer)
-            return layer
+            pass
         else:
             print "Could not load layer"
             widget = self.iface.messageBar().createMessage(
@@ -228,6 +239,16 @@ class Kortforsyningen:
             settings_btn.pressed.connect(self.settings_dialog)
             widget.layout().addWidget(settings_btn)
             self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
+
+    def open_node(self, node, id):
+        QgsProject.instance().read(node)
+        layer = QgsMapLayerRegistry.instance().mapLayer(id)
+        if layer:
+            self.iface.legendInterface().refreshLayerSymbology(layer)
+            #self.iface.legendInterface().moveLayer(layer, 0)
+            self.iface.legendInterface().refreshLayerSymbology(layer)
+            return layer
+        else:
             return None
 
     # noinspection PyMethodMayBeStatic
@@ -284,6 +305,7 @@ class Kortforsyningen:
 
         if result == 1:
             del dlg
+            self.reloadMenu()
 
     def about_dialog(self):
         dlg = KFAboutDialog()

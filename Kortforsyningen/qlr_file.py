@@ -33,7 +33,7 @@ class QlrFile():
             group = groups.at(i)
             layers = self.get_group_layers(group)
             if layers:
-                if group.toElement().hasAttribute("name"):
+                if group.toElement().hasAttribute("name") and group.toElement().attribute("name") != '':
                     group_name = group.toElement().attribute("name")
                     result.append({'name': group_name, 'layers': layers})
             i += 1

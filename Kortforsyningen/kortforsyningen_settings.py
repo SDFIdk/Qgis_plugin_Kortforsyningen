@@ -51,8 +51,10 @@ class KFSettingsDialog(QtGui.QDialog, FORM_CLASS, SettingDialog):
         self.setupUi(self)
         SettingDialog.__init__(self, settings)
         if self.use_custom_qlr_file.isChecked():
+            #self.custom_qlr_file.setEchoMode(QtGui.QLineEdit.NoEcho)
             self.browseLocalFileButton.setEnabled(True)
         else:
+            #self.custom_qlr_file.setEchoMode(QtGui.QLineEdit.Normal)
             self.browseLocalFileButton.setEnabled(False)
 
         self.browseLocalFileButton.clicked.connect(self.browseLocalFile)
