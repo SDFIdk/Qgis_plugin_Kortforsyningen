@@ -37,7 +37,9 @@ class KFSettings(SettingManager):
         self.addSetting('password', 'string', 'global', '')
         self.addSetting('use_custom_qlr_file', 'bool', 'global', False)
         self.addSetting('custom_qlr_file', 'string', 'global', '')
+        self.addSetting('kf_only_background', 'bool', 'global', False)
         self.addSetting('remember_settings', 'bool', 'global', False)
+
         
     def is_set(self):
         if self.value('username') and self.value('password'):
@@ -51,10 +53,10 @@ class KFSettingsDialog(QtGui.QDialog, FORM_CLASS, SettingDialog):
         self.setupUi(self)
         SettingDialog.__init__(self, settings)
         if self.use_custom_qlr_file.isChecked():
-            #self.custom_qlr_file.setEchoMode(QtGui.QLineEdit.NoEcho)
+            self.kf_only_background.setEnabled(True)
             self.browseLocalFileButton.setEnabled(True)
         else:
-            #self.custom_qlr_file.setEchoMode(QtGui.QLineEdit.Normal)
+            self.kf_only_background.setEnabled(False)
             self.browseLocalFileButton.setEnabled(False)
 
         self.browseLocalFileButton.clicked.connect(self.browseLocalFile)
@@ -72,8 +74,6 @@ class KFSettingsDialog(QtGui.QDialog, FORM_CLASS, SettingDialog):
             self.custom_qlr_file.setText(file)
 
     def useLocalChanged(self, checked):
-        #if self.use_custom_qlr_file.isChecked():
+        self.kf_only_background.setEnabled(checked)
         self.browseLocalFileButton.setEnabled(checked)
-        #else:
-        #    self.browseLocalFileButton.setEnabled(False)
 
