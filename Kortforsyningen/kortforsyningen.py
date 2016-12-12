@@ -161,6 +161,7 @@ class Kortforsyningen:
 
         #icon_path = ':/plugins/Kortforsyningen/icon.png'
         icon_path = ':/plugins/Kortforsyningen/settings-cog.png'
+        icon_path_info = ':/plugins/Kortforsyningen/icon_about.png'
 
         self.menu = QMenu(self.iface.mainWindow().menuBar())
         self.menu.setObjectName(self.tr('Kortforsyningen'))
@@ -209,6 +210,7 @@ class Kortforsyningen:
 
         # Add about
         self.about_menu = QAction(
+            QIcon(icon_path_info),
             self.tr('About the plugin'),
             self.iface.mainWindow()
         )
