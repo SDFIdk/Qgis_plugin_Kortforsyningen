@@ -58,7 +58,7 @@ class QlrFile():
         return result
     
     def get_maplayer_service(self, maplayer_node):
-        service = None
+        service = 'other'
         datasource_node = None
         datasource_nodes = maplayer_node.toElement().elementsByTagName('datasource')
         if datasource_nodes.count() == 1:

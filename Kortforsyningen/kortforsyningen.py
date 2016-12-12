@@ -154,9 +154,16 @@ class Kortforsyningen:
     def initGui(self):
         self.createMenu()
         
+    def show_kf_error(self):
+        message = u'Check forbindelsen og vælg menu Kortforsyningen->Indstillinger->OK'
+        self.iface.messageBar().pushMessage("Ingen kontakt til Kortforsyningen", message, level=QgsMessageBar.WARNING )
+        
     def createMenu(self):
         self.config = Config(self.settings)
+        self.config.kf_error.connect(self.show_kf_error)
+        self.config.load()
         self.categories = self.config.get_categories()
+        self.category_lists = self.config.get_category_lists()
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         #icon_path = ':/plugins/Kortforsyningen/icon.png'
@@ -172,31 +179,33 @@ class Kortforsyningen:
 
         # Add menu object for each theme
         self.category_menus = []
-        for category in self.categories:
-            category_menu = QMenu()
-            category_menu.setTitle(category['name'])
-            kf_helper = lambda _id: lambda: self.open_kf_node(_id)
-            local_helper = lambda _id: lambda: self.open_local_node(_id)
-            for selectable in category['selectables']:
-                q_action = QAction(
-                    selectable['name'], self.iface.mainWindow()
-                )
-                if selectable['source'] == 'kf':
-                    q_action.triggered.connect(
-                        kf_helper(selectable['id'])
+        kf_helper = lambda _id: lambda: self.open_kf_node(_id)
+        local_helper = lambda _id: lambda: self.open_local_node(_id)
+        
+        for category_list in self.category_lists:
+            list_categorymenus = []
+            for category in category_list:
+                category_menu = QMenu()
+                category_menu.setTitle(category['name'])
+                for selectable in category['selectables']:
+                    q_action = QAction(
+                        selectable['name'], self.iface.mainWindow()
                     )
-                else:
-                    q_action.triggered.connect(
-                        local_helper(selectable['id'])
-                    )
-                category_menu.addAction(q_action)
-            self.category_menus.append(category_menu)
-
-        for category_menu in self.category_menus:
-            self.menu.addMenu(category_menu)
-
-        # Seperate settings from actual content
-        self.menu.addSeparator()
+                    if selectable['source'] == 'kf':
+                        q_action.triggered.connect(
+                            kf_helper(selectable['id'])
+                        )
+                    else:
+                        q_action.triggered.connect(
+                            local_helper(selectable['id'])
+                        )
+                    category_menu.addAction(q_action)
+                    
+                list_categorymenus.append(category_menu)
+                self.category_menus.append(category_menu)
+            for category_menukuf in list_categorymenus:
+                self.menu.addMenu(category_menukuf)
+            self.menu.addSeparator()
 
         # Add settings
         self.settings_menu = QAction(

@@ -25,7 +25,12 @@ from PyQt4.QtGui import (
     QMenu,
     QPushButton
 )
-from PyQt4 import QtXml
+
+from PyQt4 import (
+    QtCore,
+    QtXml
+)
+
 # Initialize Qt resources from file resources.py
 from kortforsyningen_settings import(
     KFSettings
@@ -39,20 +44,29 @@ KF_SERVICES_URL = 'http://services.kortforsyningen.dk/service?request=GetService
 def log_message(message):
     QgsMessageLog.logMessage(message, 'Kortforsyningen plugin')
 
-class KfConfig:
+class KfConfig(QtCore.QObject):
+    
+    kf_error = QtCore.pyqtSignal()
+            
+
 
     def __init__(self, settings):
+        super(KfConfig, self).__init__()
         self.settings = settings
-        self.reload()
+        #self.reload()
     
-    def reload(self):
+    def load(self):
         self.cached_kf_qlr_filename = self.settings.value('cache_path') + 'kortforsyning_data.qlr'
         self.allowed_kf_services = {}
         if self.settings.is_set():
-            self.allowed_kf_services = self.get_allowed_kf_services()
-            
-            self.kf_qlr_file = self.get_kf_qlr_file()
-            self.background_category, self.categories = self.get_kf_categories()
+            try:
+                self.allowed_kf_services = self.get_allowed_kf_services()
+                self.kf_qlr_file = self.get_kf_qlr_file()
+                self.background_category, self.categories = self.get_kf_categories()
+            except Exception, e:
+                self.kf_error.emit()
+                self.background_category = None
+                self.categories = []
 
     def get_allowed_kf_services(self):
         allowed_kf_services = {}

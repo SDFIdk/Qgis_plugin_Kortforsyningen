@@ -1,16 +1,30 @@
 from kf_config import KfConfig
 from local_config import LocalConfig
+from PyQt4 import (
+    QtCore
+)
 
-class Config:
+class Config(QtCore.QObject):
 
+    kf_error = QtCore.pyqtSignal()
+            
     def __init__(self, settings):
+        super(Config, self).__init__()
         self.settings = settings
         self.kf_config = KfConfig(settings)
+        self.kf_config.kf_error.connect(self.propagate_kf_error)
         self.local_config = LocalConfig(settings)
-        self.reload()
+        #self.reload()
+
+    def propagate_kf_error(self):
+        self.kf_error.emit()
         
-    def reload(self):
+    def load(self):
+        
+        self.kf_config.load()
+
         self.categories = []
+        self.categories_list = []
         if self.settings.value('use_custom_qlr_file') and self.settings.value('kf_only_background'):
             self.kf_categories = []
             background_category = self.kf_config.get_background_category()
@@ -19,8 +33,15 @@ class Config:
         else:
             self.kf_categories = self.kf_config.get_categories()
         self.local_categories = self.local_config.get_categories()
+        
         self.categories = self.kf_categories + self.local_categories
+        
+        self.categories_list.append(self.kf_categories)
+        self.categories_list.append(self.local_categories)
 
+    def get_category_lists(self):
+        return self.categories_list
+    
     def get_categories(self):
         return self.categories
 
