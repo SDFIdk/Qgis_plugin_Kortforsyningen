@@ -6,18 +6,23 @@ from PyQt4 import (
 
 class Config(QtCore.QObject):
 
-    kf_error = QtCore.pyqtSignal()
+    kf_con_error = QtCore.pyqtSignal()
+    kf_settings_warning = QtCore.pyqtSignal()
             
     def __init__(self, settings):
         super(Config, self).__init__()
         self.settings = settings
         self.kf_config = KfConfig(settings)
-        self.kf_config.kf_error.connect(self.propagate_kf_error)
-        self.local_config = LocalConfig(settings)
-        #self.reload()
+        self.kf_config.kf_con_error.connect(self.propagate_kf_con_error)
+        self.kf_config.kf_settings_warning.connect(self.propagate_kf_settings_warning)
 
-    def propagate_kf_error(self):
-        self.kf_error.emit()
+        self.local_config = LocalConfig(settings)
+
+    def propagate_kf_settings_warning(self):
+        self.kf_settings_warning.emit()
+        
+    def propagate_kf_con_error(self):
+        self.kf_con_error.emit()
         
     def load(self):
         

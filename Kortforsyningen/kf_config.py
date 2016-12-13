@@ -46,15 +46,13 @@ def log_message(message):
 
 class KfConfig(QtCore.QObject):
     
-    kf_error = QtCore.pyqtSignal()
-            
-
+    kf_con_error = QtCore.pyqtSignal()
+    kf_settings_warning = QtCore.pyqtSignal()
 
     def __init__(self, settings):
         super(KfConfig, self).__init__()
         self.settings = settings
-        #self.reload()
-    
+
     def load(self):
         self.cached_kf_qlr_filename = self.settings.value('cache_path') + 'kortforsyning_data.qlr'
         self.allowed_kf_services = {}
@@ -64,7 +62,11 @@ class KfConfig(QtCore.QObject):
                 self.kf_qlr_file = self.get_kf_qlr_file()
                 self.background_category, self.categories = self.get_kf_categories()
             except Exception, e:
-                self.kf_error.emit()
+                self.kf_con_error.emit()
+                self.background_category = None
+                self.categories = []
+        else:
+                self.kf_settings_warning.emit()
                 self.background_category = None
                 self.categories = []
 

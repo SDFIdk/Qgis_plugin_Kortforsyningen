@@ -39,7 +39,6 @@ class KFSettings(SettingManager):
         self.addSetting('custom_qlr_file', 'string', 'global', '')
         self.addSetting('kf_only_background', 'bool', 'global', False)
         self.addSetting('remember_settings', 'bool', 'global', False)
-
         
     def is_set(self):
         if self.value('username') and self.value('password'):

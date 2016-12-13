@@ -156,11 +156,22 @@ class Kortforsyningen:
         
     def show_kf_error(self):
         message = u'Check forbindelsen og vælg menu Kortforsyningen->Indstillinger->OK'
-        self.iface.messageBar().pushMessage("Ingen kontakt til Kortforsyningen", message, level=QgsMessageBar.WARNING )
-        
+        self.iface.messageBar().pushMessage("Ingen kontakt til Kortforsyningen", message, level=QgsMessageBar.WARNING, duration=5)
+
+    def show_kf_settings_warning(self):
+            widget = self.iface.messageBar().createMessage(
+                self.tr('Kortforsyningen'), self.tr(u'Brugernavn/Password ikke sat eller forkert. Vælg menu Kortforsyningen->Indstillinger')
+            )
+            settings_btn = QPushButton(widget)
+            settings_btn.setText(self.tr("Indstillinger"))
+            settings_btn.pressed.connect(self.settings_dialog)
+            widget.layout().addWidget(settings_btn)
+            self.iface.messageBar().pushWidget(widget, QgsMessageBar.WARNING, duration=10)
+
     def createMenu(self):
         self.config = Config(self.settings)
-        self.config.kf_error.connect(self.show_kf_error)
+        self.config.kf_con_error.connect(self.show_kf_error)
+        self.config.kf_settings_warning.connect(self.show_kf_settings_warning)
         self.config.load()
         self.categories = self.config.get_categories()
         self.category_lists = self.config.get_category_lists()
@@ -239,18 +250,6 @@ class Kortforsyningen:
     def open_kf_node(self, id):
         node = self.config.get_kf_maplayer_node(id)
         layer = self.open_node(node, id)
-        if layer:
-            pass
-        else:
-            print "Could not load layer"
-            widget = self.iface.messageBar().createMessage(
-                self.tr('Error'), self.tr('Could not load the layer. Is username and password correct?')
-            )
-            settings_btn = QPushButton(widget)
-            settings_btn.setText(self.tr("Settings"))
-            settings_btn.pressed.connect(self.settings_dialog)
-            widget.layout().addWidget(settings_btn)
-            self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
 
     def open_node(self, node, id):
         QgsProject.instance().read(node)
@@ -293,22 +292,6 @@ class Kortforsyningen:
             i += 1
         return None
 
-    def open_layer(self, filename, layerid):
-        """Opens the specified layerid"""
-        # If settings are not set, ask user to set them
-        if not self.settings.is_set():
-            widget = self.iface.messageBar().createMessage(
-                self.tr('Error'), self.tr('Please, fill out username and password')
-            )
-            settings_btn = QPushButton(widget)
-            settings_btn.setText(self.tr('Settings'))
-            settings_btn.pressed.connect(self.settings_dialog)
-            widget.layout().addWidget(settings_btn)
-            self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
-            return
-
-            return None
-
     def settings_dialog(self):
         dlg = KFSettingsDialog(self.settings)
         dlg.setWidgetsFromValues()
@@ -343,6 +326,8 @@ class Kortforsyningen:
     def clearMenu(self):
         # Remove the submenus
         for submenu in self.category_menus:
-            submenu.deleteLater()
+            if submenu:
+                submenu.deleteLater()
         # remove the menu bar item
-        self.menu.deleteLater()
+        if self.menu:
+            self.menu.deleteLater()
