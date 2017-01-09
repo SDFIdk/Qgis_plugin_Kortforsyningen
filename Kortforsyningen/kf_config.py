@@ -31,6 +31,8 @@ from PyQt4 import (
     QtXml
 )
 
+import json
+
 # Initialize Qt resources from file resources.py
 from kortforsyningen_settings import(
     KFSettings
@@ -65,6 +67,7 @@ class KfConfig(QtCore.QObject):
                 self.kf_con_error.emit()
                 self.background_category = None
                 self.categories = []
+            self.debug_write_allowed_services()
         else:
                 self.kf_settings_warning.emit()
                 self.background_category = None
@@ -189,6 +192,16 @@ class KfConfig(QtCore.QObject):
         # Write new version
         with codecs.open(self.cached_kf_qlr_filename, 'w', 'utf-8') as f:
             f.write(contents)
+
+    def debug_write_allowed_services(self):
+        try:
+            debug_filename = self.settings.value('cache_path') + self.settings.value('username') + '.txt'
+            if os.path.exists(debug_filename):
+                os.remove(debug_filename)
+            with codecs.open(debug_filename, 'w', 'utf-8') as f:
+                f.write(json.dumps(self.allowed_kf_services['any_type']['services'], indent=2).replace('[', '').replace(']', ''))
+        except Exception, e:
+            pass
 
     def replace_variables(self, text):
         """
