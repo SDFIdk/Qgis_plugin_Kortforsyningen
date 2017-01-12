@@ -163,7 +163,7 @@ class Kortforsyningen:
                 self.tr('Kortforsyningen'), self.tr(u'Username/Password not set or wrong. Click menu Kortforsyningen->Settings')
             )
             settings_btn = QPushButton(widget)
-            settings_btn.setText(self.tr("Indstillinger"))
+            settings_btn.setText(self.tr("Settings"))
             settings_btn.pressed.connect(self.settings_dialog)
             widget.layout().addWidget(settings_btn)
             self.iface.messageBar().pushWidget(widget, QgsMessageBar.WARNING, duration=10)
