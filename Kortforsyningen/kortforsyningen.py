@@ -155,15 +155,15 @@ class Kortforsyningen:
         self.createMenu()
         
     def show_kf_error(self):
-        message = u'Check forbindelsen og vælg menu Kortforsyningen->Indstillinger->OK'
-        self.iface.messageBar().pushMessage("Ingen kontakt til Kortforsyningen", message, level=QgsMessageBar.WARNING, duration=5)
+        message = u'Check connection and click menu Kortforsyningen->Settings->OK'
+        self.iface.messageBar().pushMessage("No contact to Kortforsyningen", message, level=QgsMessageBar.WARNING, duration=5)
 
     def show_kf_settings_warning(self):
             widget = self.iface.messageBar().createMessage(
-                self.tr('Kortforsyningen'), self.tr(u'Brugernavn/Password ikke sat eller forkert. Vælg menu Kortforsyningen->Indstillinger')
+                self.tr('Kortforsyningen'), self.tr(u'Username/Password not set or wrong. Click menu Kortforsyningen->Settings')
             )
             settings_btn = QPushButton(widget)
-            settings_btn.setText(self.tr("Indstillinger"))
+            settings_btn.setText(self.tr("Settings"))
             settings_btn.pressed.connect(self.settings_dialog)
             widget.layout().addWidget(settings_btn)
             self.iface.messageBar().pushWidget(widget, QgsMessageBar.WARNING, duration=10)
