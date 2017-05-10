@@ -31,10 +31,11 @@ class QlrFile():
         i = 0
         while i<groups.count():
             group = groups.at(i)
-            layers = self.get_group_layers(group)
-            if layers:
-                if group.toElement().hasAttribute("name") and group.toElement().attribute("name") != '':
-                    group_name = group.toElement().attribute("name")
+            group_name = None
+            if group.toElement().hasAttribute("name") and group.toElement().attribute("name") != '':
+                group_name = group.toElement().attribute("name")
+                layers = self.get_group_layers(group)
+                if layers and group_name:
                     result.append({'name': group_name, 'layers': layers})
             i += 1
         return result
@@ -65,13 +66,15 @@ class QlrFile():
             datasource_node = datasource_nodes.at(0) 
             datasource = datasource_node.toElement().text()
             url_part = None
-            datasource_parts = datasource.split('&')
+            datasource_parts = datasource.split('&') + datasource.split(' ') 
+            #datasource_parts.append(datasource.split(' '))
             for part in datasource_parts:
                 if part.startswith('url'):
                     url_part = part
             if url_part:
                 if url_part:
-                    url = url_part.split('=')[1]
+                    #url = url_part.split('=')[1]
+                    url = url_part[5:]
                     url = urllib.unquote(url)
                     url_params = dict(urlparse.parse_qsl(urlparse.urlsplit(url).query))
                     if url_params['servicename']:
