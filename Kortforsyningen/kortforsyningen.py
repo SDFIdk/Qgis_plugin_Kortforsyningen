@@ -56,6 +56,7 @@ import resources_rc
 from qlr_file import QlrFile
 from config import Config
 
+from myseptimasearchprovider import MySeptimaSearchProvider
 #Real URL"
 #CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/qgis_plugin.qlr'
 
@@ -185,6 +186,8 @@ class Kortforsyningen:
         self.menu = QMenu(self.iface.mainWindow().menuBar())
         self.menu.setObjectName(self.tr('Kortforsyningen'))
         self.menu.setTitle(self.tr('Kortforsyningen'))
+        
+        searchable_layers = []
 
         if self.error_menu:
             self.menu.addAction(self.error_menu)
@@ -212,12 +215,19 @@ class Kortforsyningen:
                             local_helper(selectable['id'])
                         )
                     category_menu.addAction(q_action)
-                    
+                    searchable_layers.append(
+                        {
+                            'title': selectable['name'],
+                            'category': category['name'],
+                            'action': q_action
+                        }
+                    )
                 list_categorymenus.append(category_menu)
                 self.category_menus.append(category_menu)
             for category_menukuf in list_categorymenus:
                 self.menu.addMenu(category_menukuf)
             self.menu.addSeparator()
+        self.septimasearchprovider = MySeptimaSearchProvider(self, searchable_layers)
 
         # Add settings
         self.settings_menu = QAction(
