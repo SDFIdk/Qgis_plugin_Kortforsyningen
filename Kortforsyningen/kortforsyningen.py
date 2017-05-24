@@ -64,9 +64,9 @@ from myseptimasearchprovider import MySeptimaSearchProvider
 #CONFIG_FILE_URL = 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data.qlr'
 #CONFIG_FILE_URL = 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data_SDFE.qlr'
 ##test version: 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data_inkl_restricteddata.qlr'
-CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/qgis_plugin.qlr'
+CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/kf/kortforsyning_data.qlr'
 
-ABOUT_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/about.html'
+ABOUT_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/kf/about.html'
 FILE_MAX_AGE = datetime.timedelta(hours=12)
 
 def log_message(message):
