@@ -11,8 +11,8 @@ name=Kortforsyningen
 qgisMinimumVersion=2.0
 description= Easy acccess to Services from Kortforsyningen (Danish Map supply) in QGIS Desktop.
 
-version= 0.2
-author= Danish Agency for Data supply and Efficiency
+version= 1.0
+author= Danish Agency for Data Supply and Efficiency
 email= kortforsyningen@gmail.com
 
 about= This plugin makes it easy to use the services from Danish Map supply aka Kortforsyningen. A new menu is added to QGIS which contains services ordered by category. The plugin is developed by Danish Map supply (Agency for Data Supply and Efficiency). In order to use the plugin, a user at Kortforsyningen.dk is required.  Enter your username and password in the plugin setting dialogue.  If you do not have a Kortforsyning user please create one using the link in the plugin setting dialogue. The plugin is developed by the Agency for Data Supply and Efficiency (fka Danish Geodata Agency)(www.kortforsyningen.dk, kortforsyningen@gmail.com)
@@ -25,11 +25,12 @@ about= This plugin makes it easy to use the services from Danish Map supply aka 
 
 # Uncomment the following line and add your changelog:
 changelog=
-2016-06-01: First release, version 0.1
+2017-05-29: version 1.0, Changed configuration to qlr-file, possibility to add own qlr-fil, fixed different formats of urls in datasource,  improved error handlings and GUI improvements (icons,scaling issues etc.)
 2016-06-01: version 0.2, Minor text changes and logo change
+2016-06-01: version 0.1, First release
 
 # Tags are comma separated with spaces allowed
-tags=Agency for Data Supply and Efficiency, Danish Map supply, Open data,  Styrelsen for dataforsyning og effektivisering, Danish, Danmark, Denmark, INSPIRE, SDFE, WMS, dansk, kortforsyningen, WMS
+tags=Agency for Data Supply and Efficiency, Danish Map supply, Open data,  Styrelsen for Dataforsyning og Effektivisering, Danish, Danmark, Denmark, INSPIRE, SDFE, WMS, dansk, Kortforsyningen
 
 homepage=https://github.com/Kortforsyningen/Qgis_plugin_Kortforsyningen
 tracker=https://github.com/Kortforsyningen/Qgis_plugin_Kortforsyningen/issues

@@ -20,33 +20,57 @@
  *                                                                         *
  ***************************************************************************/
 """
-from PyQt4.QtCore import QCoreApplication
-from PyQt4.QtCore import QFileInfo
-from PyQt4.QtCore import QUrl
-from PyQt4.QtGui import QAction, QIcon, QMenu, QPushButton
-from PyQt4 import QtXml
-from qgis.gui import QgsMessageBar
-from qgis.core import *
-# Initialize Qt resources from file resources.py
-import resources_rc
-from kortforsyningen_settings import KFSettings, KFSettingsDialog
+import codecs
 import os.path
 import datetime
-from urllib2 import urlopen, URLError, HTTPError
-import json
-import codecs
+from urllib2 import (
+    urlopen,
+    URLError,
+    HTTPError
+)
+from qgis.gui import QgsMessageBar
+from qgis.core import *
+from PyQt4.QtCore import (
+    QCoreApplication,
+    QFileInfo,
+    QUrl,
+    QSettings,
+    QTranslator,
+    qVersion
+)
+
+from PyQt4.QtGui import (
+    QAction,
+    QIcon,
+    QMenu,
+    QPushButton
+)
+from PyQt4 import QtXml
+# Initialize Qt resources from file resources.py
+from kortforsyningen_settings import(
+    KFSettings,
+    KFSettingsDialog
+)
 from kortforsyningen_about import KFAboutDialog
-from PyQt4.QtCore import QSettings, QTranslator, qVersion
+import resources_rc
+from qlr_file import QlrFile
+from config import Config
 
-from project import QgisProject
-CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/themes.json'
-ABOUT_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/about.html'
+from myseptimasearchprovider import MySeptimaSearchProvider
+#Real URL"
+#CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/qgis_plugin.qlr'
+
+#Develop
+#CONFIG_FILE_URL = 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data.qlr'
+#CONFIG_FILE_URL = 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data_SDFE.qlr'
+##test version: 'http://labs.septima.dk/qgis-kf-knap/kortforsyning_data_inkl_restricteddata.qlr'
+CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/kf/kortforsyning_data.qlr'
+
+ABOUT_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/kf/about.html'
 FILE_MAX_AGE = datetime.timedelta(hours=12)
-
 
 def log_message(message):
     QgsMessageLog.logMessage(message, 'Kortforsyningen plugin')
-
 
 class Kortforsyningen:
     """QGIS Plugin Implementation."""
@@ -62,31 +86,32 @@ class Kortforsyningen:
         # Save reference to the QGIS interface
         self.iface = iface
         self.settings = KFSettings()
-        self.path = QFileInfo(os.path.realpath(__file__)).path()
+        
+        path = QFileInfo(os.path.realpath(__file__)).path()
+        kf_path = path + '/kf/'
+        if not os.path.exists(kf_path):
+            os.makedirs(kf_path)
+            
+        self.settings.addSetting('cache_path', 'string', 'global', kf_path)
+        self.settings.addSetting('kf_qlr_url', 'string', 'global', CONFIG_FILE_URL)
 
-        self.kf_path = self.path + '/kf/'
-        if not os.path.exists(self.kf_path):
-            os.makedirs(self.kf_path)
-
-        self.local_config_file = self.kf_path + 'themes.json'
-        self.local_about_file = self.kf_path + 'about.html'
+        self.local_about_file = kf_path + 'about.html'
 
         # An error menu object, set to None.
         self.error_menu = None
 
         # Categories
         self.categories = []
+        self.nodes_by_index = {}
+        self.node_count = 0
 
         # Read the about page
         self.read_about_page()
 
-        # Check if we have a version, and act accordingly
-        self.read_config()
-
         # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
         locale_path = os.path.join(
-            self.path,
+             path,
             'i18n',
             '{}.qm'.format(locale))
 
@@ -127,79 +152,126 @@ class Kortforsyningen:
 
         with codecs.open(self.local_about_file, 'w') as f:
             f.write(content)
+            
+    def initGui(self):
+        self.createMenu()
+        
+    def show_kf_error(self):
+        message = u'Check connection and click menu Kortforsyningen->Settings->OK'
+        self.iface.messageBar().pushMessage("No contact to Kortforsyningen", message, level=QgsMessageBar.WARNING, duration=5)
 
-    def read_config(self):
-        config = None
-        load_remote_config = True
-
-        local_file_exists = os.path.exists(self.local_config_file)
-        if local_file_exists:
-            config = self.get_local_config_file()
-            local_file_time = datetime.datetime.fromtimestamp(
-                os.path.getmtime(self.local_config_file)
+    def show_kf_settings_warning(self):
+            widget = self.iface.messageBar().createMessage(
+                self.tr('Kortforsyningen'), self.tr(u'Username/Password not set or wrong. Click menu Kortforsyningen->Settings')
             )
-            load_remote_config = local_file_time < datetime.datetime.now() - FILE_MAX_AGE
+            settings_btn = QPushButton(widget)
+            settings_btn.setText(self.tr("Settings"))
+            settings_btn.pressed.connect(self.settings_dialog)
+            widget.layout().addWidget(settings_btn)
+            self.iface.messageBar().pushWidget(widget, QgsMessageBar.WARNING, duration=10)
 
-        if load_remote_config:
-            try:
-                config = self.get_remote_config_file()
-            except Exception, e:
-                log_message(u'No contact to the configuration at ' + CONFIG_FILE_URL + '. Exception: ' + str(e))
-                if not local_file_exists:
-                    self.error_menu = QAction(
-                        self.tr('No contact to Kortforsyningen'),
-                        self.iface.mainWindow()
+    def createMenu(self):
+        self.config = Config(self.settings)
+        self.config.kf_con_error.connect(self.show_kf_error)
+        self.config.kf_settings_warning.connect(self.show_kf_settings_warning)
+        self.config.load()
+        self.categories = self.config.get_categories()
+        self.category_lists = self.config.get_category_lists()
+        """Create the menu entries and toolbar icons inside the QGIS GUI."""
+
+        #icon_path = ':/plugins/Kortforsyningen/icon.png'
+        icon_path = ':/plugins/Kortforsyningen/settings-cog.png'
+        icon_path_info = ':/plugins/Kortforsyningen/icon_about.png'
+
+        self.menu = QMenu(self.iface.mainWindow().menuBar())
+        self.menu.setObjectName(self.tr('Kortforsyningen'))
+        self.menu.setTitle(self.tr('Kortforsyningen'))
+        
+        searchable_layers = []
+
+        if self.error_menu:
+            self.menu.addAction(self.error_menu)
+
+        # Add menu object for each theme
+        self.category_menus = []
+        kf_helper = lambda _id: lambda: self.open_kf_node(_id)
+        local_helper = lambda _id: lambda: self.open_local_node(_id)
+        
+        for category_list in self.category_lists:
+            list_categorymenus = []
+            for category in category_list:
+                category_menu = QMenu()
+                category_menu.setTitle(category['name'])
+                for selectable in category['selectables']:
+                    q_action = QAction(
+                        selectable['name'], self.iface.mainWindow()
                     )
-                return
-            self.write_config_file(config)
+                    if selectable['source'] == 'kf':
+                        q_action.triggered.connect(
+                            kf_helper(selectable['id'])
+                        )
+                    else:
+                        q_action.triggered.connect(
+                            local_helper(selectable['id'])
+                        )
+                    category_menu.addAction(q_action)
+                    searchable_layers.append(
+                        {
+                            'title': selectable['name'],
+                            'category': category['name'],
+                            'action': q_action
+                        }
+                    )
+                list_categorymenus.append(category_menu)
+                self.category_menus.append(category_menu)
+            for category_menukuf in list_categorymenus:
+                self.menu.addMenu(category_menukuf)
+            self.menu.addSeparator()
+        self.septimasearchprovider = MySeptimaSearchProvider(self, searchable_layers)
 
-        self.categories = config["categories"]
-        self.update_qgs_files(config)
+        # Add settings
+        self.settings_menu = QAction(
+            QIcon(icon_path),
+            self.tr('Settings'),
+            self.iface.mainWindow()
+        )
+        self.settings_menu.setObjectName(self.tr('Settings'))
+        self.settings_menu.triggered.connect(self.settings_dialog)
+        self.menu.addAction(self.settings_menu)
 
-    def get_local_config_file(self):
-        with codecs.open(self.local_config_file, 'rU', 'utf-8') as f:
-            return json.loads(f.read())
+        # Add about
+        self.about_menu = QAction(
+            QIcon(icon_path_info),
+            self.tr('About the plugin'),
+            self.iface.mainWindow()
+        )
+        self.about_menu.setObjectName(self.tr('About the plugin'))
+        self.about_menu.triggered.connect(self.about_dialog)
+        self.menu.addAction(self.about_menu)
 
-    def get_remote_config_file(self):
-        response = urlopen(CONFIG_FILE_URL)
-        content = response.read()
-        return json.loads(content)
+        menu_bar = self.iface.mainWindow().menuBar()
+        menu_bar.insertMenu(
+            self.iface.firstRightStandardMenu().menuAction(), self.menu
+        )
+        
+    def open_local_node(self, id):
+        node = self.config.get_local_maplayer_node(id)
+        self.open_node(node, id)
 
-    def write_config_file(self, response):
-        """We only call this function IF we have a new version downloaded"""
-        # Remove old versions file
-        if os.path.exists(self.local_config_file):
-            os.remove(self.local_config_file)
+    def open_kf_node(self, id):
+        node = self.config.get_kf_maplayer_node(id)
+        layer = self.open_node(node, id)
 
-        # Write new version
-        with codecs.open(self.local_config_file, 'w', 'utf-8') as f:
-            json.dump(response, f)
-
-    def update_qgs_files(self, config):
-        self.categories = config['categories']
-        for category in self.categories:
-            url = category['url']
-            filepath = self.kf_path + url.rsplit('/', 1)[-1]
-            if os.path.exists(filepath):
-                file_time = datetime.datetime.fromtimestamp(
-                    os.path.getmtime(filepath)
-                )
-                if file_time > datetime.datetime.now() - FILE_MAX_AGE:
-                    continue
-
-            try:
-                f = urlopen(url)
-                # Write the file as filename to kf_path
-                with codecs.open(filepath, "wb") as local_file:
-                    local_file.write(f.read())
-            except HTTPError, e:
-                self.error_list.append(
-                    'HTTP Error: {} {}'.format(e.code, url)
-                )
-            except URLError, e:
-                self.error_list.append(
-                    'URL Error: {} {}'.format(e.reason, url)
-                )
+    def open_node(self, node, id):
+        QgsProject.instance().read(node)
+        layer = QgsMapLayerRegistry.instance().mapLayer(id)
+        if layer:
+            self.iface.legendInterface().refreshLayerSymbology(layer)
+            #self.iface.legendInterface().moveLayer(layer, 0)
+            self.iface.legendInterface().refreshLayerSymbology(layer)
+            return layer
+        else:
+            return None
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -231,129 +303,6 @@ class Kortforsyningen:
             i += 1
         return None
 
-    def replace_variables(self, text):
-        """
-        :param text: Input text
-        :return: text where variables has been replaced
-        """
-        # TODO: If settings are not set then show the settings dialog
-        replace_vars = {}
-        replace_vars["kf_username"] = self.settings.value('username')
-        replace_vars["kf_password"] = self.settings.value('password')
-        for i, j in replace_vars.iteritems():
-            text = text.replace("{{" + str(i) + "}}", str(j))
-        return text
-
-    def settings_set(self):
-        if self.settings.value('username') and self.settings.value('password'):
-            return True
-
-        return False
-
-    def open_layer(self, filename, layerid):
-        """Opens the specified layerid"""
-        # If settings are not set, ask user to set them
-        if not self.settings_set():
-            widget = self.iface.messageBar().createMessage(
-                self.tr('Error'), self.tr('Please, fill out username and password')
-            )
-            settings_btn = QPushButton(widget)
-            settings_btn.setText(self.tr('Settings'))
-            settings_btn.pressed.connect(self.settings_dialog)
-            widget.layout().addWidget(settings_btn)
-            self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
-            return
-
-        with open(filename, 'r') as f:
-            xml = f.read()
-        xml = self.replace_variables(xml)
-        # QtXml takes only bytes. We cant give it unicode.
-        doc = QtXml.QDomDocument()
-        doc.setContent(xml)
-        node = self.getFirstChildByTagNameValue(
-            doc.documentElement(), 'maplayer', 'id', layerid
-        )
-        QgsProject.instance().read(node)
-        layer = QgsMapLayerRegistry.instance().mapLayer(layerid)
-        if layer:
-            self.iface.legendInterface().refreshLayerSymbology(layer)
-            self.iface.legendInterface().moveLayer(layer, 0)
-            self.iface.legendInterface().refreshLayerSymbology(layer)
-            return layer
-        else:
-            print "Could not load layer"
-            widget = self.iface.messageBar().createMessage(
-                self.tr('Error'), self.tr('Could not load the layer. Is username and password correct?')
-            )
-            settings_btn = QPushButton(widget)
-            settings_btn.setText(self.tr("Settings"))
-            settings_btn.pressed.connect(self.settings_dialog)
-            widget.layout().addWidget(settings_btn)
-            self.iface.messageBar().pushWidget(widget, QgsMessageBar.CRITICAL)
-            return None
-
-
-    def initGui(self):
-        """Create the menu entries and toolbar icons inside the QGIS GUI."""
-
-        icon_path = ':/plugins/Kortforsyningen/icon.png'
-
-        self.menu = QMenu(self.iface.mainWindow().menuBar())
-        self.menu.setObjectName(self.tr('Kortforsyningen'))
-        self.menu.setTitle(self.tr('Kortforsyningen'))
-
-        if self.error_menu:
-            self.menu.addAction(self.error_menu)
-
-        # Add menu object for each theme
-        self.category_menus = []
-        for category in self.categories:
-            filename = category['url'].rsplit('/', 1)[-1]
-            theme_menu = QMenu()
-            theme_menu.setObjectName(filename)
-            theme_menu.setTitle(self.tr(category['name']))
-            project = QgisProject(self.kf_path + filename)
-            helper = lambda _f, _layer: lambda: self.open_layer(_f, _layer)
-            for layer in project.layers():
-                action = QAction(
-                    self.tr(layer['name']), self.iface.mainWindow()
-                )
-                action.triggered.connect(
-                    helper(layer['file'], layer['layerId'])
-                )
-                theme_menu.addAction(action)
-            self.category_menus.append(theme_menu)
-
-        for submenu in self.category_menus:
-            self.menu.addMenu(submenu)
-
-        # Seperate settings from actual content
-        self.menu.addSeparator()
-
-        # Add settings
-        self.settings_menu = QAction(
-            QIcon(icon_path),
-            self.tr('Settings'),
-            self.iface.mainWindow()
-        )
-        self.settings_menu.setObjectName(self.tr('Settings'))
-        self.settings_menu.triggered.connect(self.settings_dialog)
-        self.menu.addAction(self.settings_menu)
-
-        # Add about
-        self.about_menu = QAction(
-            self.tr('About the plugin'),
-            self.iface.mainWindow()
-        )
-        self.about_menu.setObjectName(self.tr('About the plugin'))
-        self.about_menu.triggered.connect(self.about_dialog)
-        self.menu.addAction(self.about_menu)
-
-        menu_bar = self.iface.mainWindow().menuBar()
-        menu_bar.insertMenu(
-            self.iface.firstRightStandardMenu().menuAction(), self.menu
-        )
-
     def settings_dialog(self):
         dlg = KFSettingsDialog(self.settings)
         dlg.setWidgetsFromValues()
@@ -362,6 +311,7 @@ class Kortforsyningen:
 
         if result == 1:
             del dlg
+            self.reloadMenu()
 
     def about_dialog(self):
         dlg = KFAboutDialog()
@@ -374,13 +324,21 @@ class Kortforsyningen:
             del dlg
 
     def unload(self):
-        """Removes the plugin menu item and icon from QGIS GUI."""
         # Remove settings if user not asked to keep them
         if self.settings.value('remember_settings') is False:
             self.settings.setValue('username', '')
             self.settings.setValue('password', '')
+        self.clearMenu();
+        
+    def reloadMenu(self):
+        self.clearMenu()
+        self.createMenu()
+    
+    def clearMenu(self):
         # Remove the submenus
         for submenu in self.category_menus:
-            submenu.deleteLater()
+            if submenu:
+                submenu.deleteLater()
         # remove the menu bar item
-        self.menu.deleteLater()
+        if self.menu:
+            self.menu.deleteLater()
