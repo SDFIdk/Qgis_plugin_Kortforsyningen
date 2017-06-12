@@ -1,7 +1,5 @@
 <RCC>
     <qresource prefix="/plugins/Kortforsyningen" >
         <file>icon.png</file>
-        <file>settings-cog.png</file>
-        <file>icon_about.png</file>
     </qresource>
 </RCC>
