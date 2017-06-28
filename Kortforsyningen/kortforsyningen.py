@@ -28,6 +28,7 @@ from urllib2 import (
     URLError,
     HTTPError
 )
+import webbrowser
 from qgis.gui import QgsMessageBar
 from qgis.core import *
 from PyQt4.QtCore import (
@@ -51,7 +52,12 @@ from kortforsyningen_settings import(
     KFSettings,
     KFSettingsDialog
 )
-from kortforsyningen_about import KFAboutDialog
+# Import fails if QtWebKit is not correctly installed.
+try:
+    from kortforsyningen_about import KFAboutDialog
+except:
+    from kortforsyningen_about_alternative import KFAlternativeAboutDialog
+
 import resources_rc
 from qlr_file import QlrFile
 from config import Config
@@ -314,14 +320,25 @@ class Kortforsyningen:
             self.reloadMenu()
 
     def about_dialog(self):
-        dlg = KFAboutDialog()
-        dlg.webView.setUrl(QUrl(self.local_about_file))
-        dlg.webView.urlChanged
-        dlg.show()
-        result = dlg.exec_()
+        if 'KFAboutDialog' in globals():
+            dlg = KFAboutDialog()
+            dlg.webView.setUrl(QUrl(self.local_about_file))
+            dlg.webView.urlChanged
+            dlg.show()
+            result = dlg.exec_()
 
-        if result == 1:
-            del dlg
+            if result == 1:
+                del dlg
+        else:
+            dlg = KFAlternativeAboutDialog()
+            dlg.buttonBox.accepted.connect(dlg.accept)
+            dlg.buttonBox.rejected.connect(dlg.reject)
+            dlg.textBrowser.setHtml(self.tr('<p>QGIS is having trouble showing the content of this dialog. Would you like to open it in an external browser window?</p>'))
+            dlg.show()
+            result = dlg.exec_()
+
+            if result:
+                webbrowser.open(ABOUT_FILE_URL)
 
     def unload(self):
         # Remove settings if user not asked to keep them

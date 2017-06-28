@@ -11,7 +11,7 @@
 <context>
     <name>Dialog</name>
     <message>
-        <location filename="aboutKortforsyningen.ui" line="22"/>
+        <location filename="aboutKortforsyningenAlternative.ui" line="22"/>
         <source>About the plugin</source>
         <translation>Om dette plugin</translation>
     </message>
@@ -19,7 +19,7 @@
 <context>
     <name>KfConfig</name>
     <message>
-        <location filename="kf_config.py" line="155"/>
+        <location filename="kf_config.py" line="158"/>
         <source>No contact to Kortforsyningen</source>
         <translation>Ingen kontakt til Kortforsyningen</translation>
     </message>
@@ -27,29 +27,34 @@
 <context>
     <name>Kortforsyningen</name>
     <message>
-        <location filename="kortforsyningen.py" line="186"/>
+        <location filename="kortforsyningen.py" line="194"/>
         <source>Kortforsyningen</source>
         <translation>Kortforsyningen</translation>
     </message>
     <message>
-        <location filename="kortforsyningen.py" line="227"/>
+        <location filename="kortforsyningen.py" line="244"/>
         <source>Settings</source>
         <translation>Indstillinger</translation>
     </message>
     <message>
-        <location filename="kortforsyningen.py" line="237"/>
+        <location filename="kortforsyningen.py" line="254"/>
         <source>About the plugin</source>
         <translation>Om dette plugin</translation>
     </message>
     <message>
-        <location filename="kortforsyningen.py" line="140"/>
+        <location filename="kortforsyningen.py" line="148"/>
         <source>No contact to Kortforsyning</source>
         <translation>Ingen kontakt til Kortforsyningen</translation>
     </message>
     <message>
-        <location filename="kortforsyningen.py" line="162"/>
+        <location filename="kortforsyningen.py" line="170"/>
         <source>Username/Password not set or wrong. Click menu Kortforsyningen-&gt;Settings</source>
-        <translation>Brugernavn/kodeord er ikke indtastet eller er forkert. Klik på Kortforsyningsmenu --> Indstillinger</translation>
+        <translation>Brugernavn/kodeord er ikke indtastet eller er forkert. Klik på Kortforsyningsmenu --&gt; Indstillinger</translation>
+    </message>
+    <message>
+        <location filename="kortforsyningen.py" line="336"/>
+        <source>&lt;p&gt;QGIS is having trouble showing the content of this dialog. Would you like to open it in an external browser window?&lt;/p&gt;</source>
+        <translation>&lt;p&gt;QGIS har problemer med at vise indholdet af denne dialogboks. Ønsker du at vise det i et eksternt browservindue?&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -97,7 +102,7 @@
     <message>
         <location filename="kf_settings.ui" line="156"/>
         <source>Save settings</source>
-        <translation >Gem indstillinger</translation>
+        <translation>Gem indstillinger</translation>
     </message>
 </context>
 </TS>
