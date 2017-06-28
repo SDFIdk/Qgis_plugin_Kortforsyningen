@@ -1,7 +1,7 @@
-# This file contains metadata for your plugin. Since 
-# version 2.0 of QGIS this is the proper way to supply 
-# information about a plugin. The old method of 
-# embedding metadata in __init__.py will 
+# This file contains metadata for your plugin. Since
+# version 2.0 of QGIS this is the proper way to supply
+# information about a plugin. The old method of
+# embedding metadata in __init__.py will
 # is no longer supported since version 2.0.
 
 # This file should be included when you package your plugin.# Mandatory items:
@@ -27,7 +27,7 @@ about= This plugin makes it easy to use the services from Danish Map supply aka 
 changelog=
 2017-05-29: version 1.0, Changed configuration to qlr-file, possibility to add own qlr-fil, fixed different formats of urls in datasource,  improved error handlings and GUI improvements (icons,scaling issues etc.)
 2016-06-01: version 0.2, Minor text changes and logo change
-2016-06-01: version 0.1, First release
+2016-05-31: version 0.1, First release
 
 # Tags are comma separated with spaces allowed
 tags=Agency for Data Supply and Efficiency, Danish Map supply, Open data,  Styrelsen for Dataforsyning og Effektivisering, Danish, Danmark, Denmark, INSPIRE, SDFE, WMS, dansk, Kortforsyningen
@@ -42,4 +42,3 @@ experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
-
