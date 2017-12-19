@@ -77,7 +77,7 @@ class QlrFile():
                     url = url_part[5:]
                     url = urllib.unquote(url)
                     url_params = dict(urlparse.parse_qsl(urlparse.urlsplit(url).query))
-                    if url_params['servicename']:
+                    if 'servicename' in url_params:
                         service = url_params['servicename']
         return service
 
