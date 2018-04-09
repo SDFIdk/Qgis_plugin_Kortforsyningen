@@ -40,7 +40,7 @@ from kortforsyningen_settings import(
 import resources_rc
 from qlr_file import QlrFile
 
-FILE_MAX_AGE = datetime.timedelta(hours=12)
+FILE_MAX_AGE = datetime.timedelta(hours=0)
 KF_SERVICES_URL = 'http://services.kortforsyningen.dk/service?request=GetServices&login={{kf_username}}&password={{kf_password}}'
 
 def log_message(message):

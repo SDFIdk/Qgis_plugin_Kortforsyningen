@@ -11,7 +11,7 @@ name=Kortforsyningen
 qgisMinimumVersion=2.0
 description= Easy acccess to Services from Kortforsyningen (Danish Map supply) in QGIS Desktop.
 
-version= 1.2
+version= 1.3
 author= Danish Agency for Data Supply and Efficiency
 email= kortforsyningen@gmail.com
 
@@ -25,6 +25,7 @@ about= This plugin makes it easy to use the services from Danish Map supply aka 
 
 # Uncomment the following line and add your changelog:
 changelog=
+2018-04-09: Version 1.3, Fixed problem with no contact (Github Issue 45)
 2017-12-19: Version 1.2, Fixed problem with some qlr-files (Github Issue 43)
 2017-06-28: version 1.1, Adding alternative about dialog without QtWebKit and other small fixes
 2017-05-29: version 1.0, Changed configuration to qlr-file, possibility to add own qlr-fil, fixed different formats of urls in datasource,  improved error handlings and GUI improvements (icons,scaling issues etc.)
