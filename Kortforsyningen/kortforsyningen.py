@@ -71,9 +71,9 @@ from myseptimasearchprovider import MySeptimaSearchProvider
 ##CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/kf/kortforsyning_data.qlr'
 CONFIG_FILE_URL = 'https://raw.githubusercontent.com/Kortforsyningen/Qgis_plugin_Kortforsyningen/master/qlrfile/kortforsyning_data.qlr'
 
-FILE_MAX_AGE = datetime.timedelta(hours=12)
 ##ABOUT_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/kf/about.html'
 ABOUT_FILE_URL = 'https://raw.githubusercontent.com/Kortforsyningen/Qgis_plugin_Kortforsyningen/master/about-html/about.html'
+FILE_MAX_AGE = datetime.timedelta(hours=0)
 
 def log_message(message):
     QgsMessageLog.logMessage(message, 'Kortforsyningen plugin')
