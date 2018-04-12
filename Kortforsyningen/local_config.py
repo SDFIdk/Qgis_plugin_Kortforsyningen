@@ -9,9 +9,9 @@ class LocalConfig:
     
     def __init__(self, settings):
         self.settings = settings
-        self.reload()
+        #self.reload()
     
-    def reload(self):
+    def load(self):
         self.categories = []
         if self.settings.value('use_custom_qlr_file'):
             self.local_qlr_filename = self.settings.value('custom_qlr_file')
