@@ -71,8 +71,8 @@ from myseptimasearchprovider import MySeptimaSearchProvider
 ##CONFIG_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/kf/kortforsyning_data.qlr'
 CONFIG_FILE_URL = 'https://raw.githubusercontent.com/Kortforsyningen/Qgis_plugin_Kortforsyningen/master/qlrfile/kortforsyning_data.qlr'
 
-##ABOUT_FILE_URL = 'http://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/kf/about.html'
-ABOUT_FILE_URL = 'https://raw.githubusercontent.com/Kortforsyningen/Qgis_plugin_Kortforsyningen/master/about-html/about.html'
+ABOUT_FILE_URL = 'https://apps2.kortforsyningen.dk/qgis_knap_config/Kortforsyningen/kf/about.html'
+##ABOUT_FILE_URL = 'https://raw.githubusercontent.com/Kortforsyningen/Qgis_plugin_Kortforsyningen/master/about-html/about.html'
 FILE_MAX_AGE = datetime.timedelta(hours=0)
 
 def log_message(message):
@@ -111,9 +111,6 @@ class Kortforsyningen:
         self.nodes_by_index = {}
         self.node_count = 0
 
-        # Read the about page
-        self.read_about_page()
-
         # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
         locale_path = os.path.join(
@@ -127,30 +124,6 @@ class Kortforsyningen:
 
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
-
-    def read_about_page(self):
-        load_remote_about = True
-
-        local_file_exists = os.path.exists(self.local_about_file)
-        if local_file_exists:
-            local_file_time = datetime.datetime.fromtimestamp(
-                os.path.getmtime(self.local_about_file)
-            )
-            load_remote_about = local_file_time < datetime.datetime.now() - FILE_MAX_AGE
-
-        if load_remote_about:
-            try:
-                response = urlopen(ABOUT_FILE_URL)
-                about = response.read()
-            except Exception, e:
-                log_message('No contact to the configuration at ' + ABOUT_FILE_URL + '. Exception: ' + str(e))
-                if not local_file_exists:
-                    self.error_menu = QAction(
-                        self.tr('No contact to Kortforsyning'),
-                        self.iface.mainWindow()
-                    )
-                return
-            self.write_about_file(about)
 
     def write_about_file(self, content):
         if os.path.exists(self.local_about_file):
@@ -322,7 +295,7 @@ class Kortforsyningen:
     def about_dialog(self):
         if 'KFAboutDialog' in globals():
             dlg = KFAboutDialog()
-            dlg.webView.setUrl(QUrl(self.local_about_file))
+            dlg.webView.setUrl(QUrl(ABOUT_FILE_URL))
             dlg.webView.urlChanged
             dlg.show()
             result = dlg.exec_()
