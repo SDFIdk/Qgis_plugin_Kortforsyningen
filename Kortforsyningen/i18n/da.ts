@@ -61,13 +61,13 @@
     <name>s</name>
     <message>
         <location filename="kf_settings.ui" line="50"/>
-        <source>Username</source>
-        <translation>Brugernavn</translation>
+        <source>Username:</source>
+        <translation>Brugernavn:</translation>
     </message>
     <message>
         <location filename="kf_settings.ui" line="60"/>
-        <source>Password</source>
-        <translation>Kodeord</translation>
+        <source>Password:</source>
+        <translation>Kodeord:</translation>
     </message>
     <message>
         <location filename="kf_settings.ui" line="14"/>
@@ -76,13 +76,13 @@
     </message>
     <message>
         <location filename="kf_settings.ui" line="44"/>
-        <source>Userinformation to Kortforsyningen</source>
+        <source>User information at Kortforsyningen</source>
         <translation>Brugerinformation til Kortforsyningen</translation>
     </message>
     <message>
-        <location filename="kf_settings.ui" line="80"/>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Not registered as user at Kortforsyningen? &lt;a href=&quot;http://download.kortforsyningen.dk//content/opret-mig-som-bruger&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Create user&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ikke registreret som bruger på Kortforsyningen? &lt;a href=&quot;http://download.kortforsyningen.dk//content/opret-mig-som-bruger&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Opret bruger&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <location filename="kf_settings.ui" line="87"/>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;      Not registered as a user at Kortforsyningen? &lt;a href=&quot;http://download.kortforsyningen.dk//content/opret-mig-som-bruger&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Create user&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;      Ikke registreret som bruger på Kortforsyningen? &lt;a href=&quot;http://download.kortforsyningen.dk//content/opret-mig-som-bruger&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Opret bruger&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="kf_settings.ui" line="93"/>
@@ -90,9 +90,9 @@
         <translation>Udvid Kortforsyningsplugin med qlr-fil</translation>
     </message>
     <message>
-        <location filename="kf_settings.ui" line="124"/>
-        <source>Open qlr-file</source>
-        <translation>Åben qlr-fil</translation>
+        <location filename="kf_settings.ui" line="143"/>
+        <source>Select qlr-file</source>
+        <translation>Vælg qlr-fil</translation>
     </message>
     <message>
         <location filename="kf_settings.ui" line="134"/>
@@ -100,9 +100,9 @@
         <translation>Vis kun baggrundskort fra Kortforsyningen</translation>
     </message>
     <message>
-        <location filename="kf_settings.ui" line="156"/>
-        <source>Save settings</source>
-        <translation>Gem indstillinger</translation>
+        <location filename="kf_settings.ui" line="80"/>
+        <source>Save username and password</source>
+        <translation>Gem brugernavn og kodeord</translation>
     </message>
 </context>
 </TS>
