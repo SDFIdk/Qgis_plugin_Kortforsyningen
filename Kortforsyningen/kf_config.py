@@ -70,27 +70,21 @@ class KfConfig(QtCore.QObject):
             url_to_get = self.replace_variables(KF_SERVICES_URL)
             reply = self.networkManager.get(QNetworkRequest( QUrl(url_to_get) ))
             func = partial(self.got_allowed_kf_services_handler, reply)
-            #func = lambda : self.got_allowed_kf_services_handler( reply)
             reply.finished.connect(func)
-            #reply.error.connect(self.report_network_error)
         except Exception as e:
             log_message("get_allowed_kf_services.except: " + str(e))
-        #reply.error.connect(self.report_network_error)
-        
+
     def report_network_error(self, message):
         full_msg = "Network Error: " + message
         self.kf_con_error.emit(full_msg)
         self.background_category = None
         self.categories = []
-        
+
     def got_allowed_kf_services_handler(self, reply):
         if reply.error() == QNetworkReply.NoError:
-            #log_message("got_allowed_kf_services_handler")
             allowed_kf_services = {}
             allowed_kf_services['any_type'] = {'services': []}
             xml = str(reply.readAll())
-            #reponse = self.get_allowed_kf_services_reply.readAll()
-            #reponse = networkReply.readAll()
             doc = QtXml.QDomDocument()
             doc.setContent(xml)
             service_types = doc.documentElement().childNodes()
@@ -115,7 +109,6 @@ class KfConfig(QtCore.QObject):
             self.report_network_error("allowed services" + reply.errorString())
 
     def get_kf_qlr_file(self):
-        #log_message("get_kf_qlr_file")
         config = None
         load_remote_config = True
 
@@ -139,16 +132,14 @@ class KfConfig(QtCore.QObject):
         #log_message("get_remote_kf_qlr: " + self.settings.value('kf_qlr_url'))
         reply = self.networkManager.get(QNetworkRequest(  QUrl(self.settings.value('kf_qlr_url')) ))
         func = partial(self.got_remote_kf_qlr, reply)
-        #func = lambda: self.got_remote_kf_qlr( reply)
         reply.finished.connect(func)
-        #reply.error.connect(self.report_network_error)
 
     def got_remote_kf_qlr(self, reply):
         if reply.error() == QNetworkReply.NoError:
             content = reply.readAll()
             content = unicode(content, 'utf-8')
             content = self.replace_variables(content)
-    
+
             self.write_cached_kf_qlr(content)
             config = self.read_cached_kf_qlr()
             self.kf_qlr_file =  QlrFile(config)
@@ -197,13 +188,9 @@ class KfConfig(QtCore.QObject):
         return []
 
     def read_cached_kf_qlr(self):
-        #return file(unicode(self.cached_kf_qlr_filename)).read()
         f = QFile(self.cached_kf_qlr_filename)
         f.open(QIODevice.ReadOnly)
         return f.readAll()
-
-        #with codecs.open(self.cached_kf_qlr_filename, 'r', 'utf-8') as f:
-        #    return f.read()
 
     def write_cached_kf_qlr(self, contents):
         """We only call this function IF we have a new version downloaded"""
@@ -226,11 +213,6 @@ class KfConfig(QtCore.QObject):
             pass
 
     def replace_variables(self, text):
-        """
-        :param text: Input text
-        :return: text where variables has been replaced
-        """
-        # TODO: If settings are not set then show the settings dialog
         result = text
         replace_vars = {}
         replace_vars["kf_username"] = self.settings.value('username')
@@ -238,6 +220,4 @@ class KfConfig(QtCore.QObject):
         for i, j in replace_vars.iteritems():
             result = result.replace("{{" + str(i) + "}}", str(j))
         return result
-
-
 

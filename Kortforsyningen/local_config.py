@@ -25,17 +25,16 @@ class LocalConfig:
             local_file_exists = os.path.exists(self.local_qlr_filename)
             if local_file_exists:
                 config = self.read_local_qlr()
-                
         if config:
             return QlrFile(config)
         else:
             return None
-        
+
     def read_local_qlr(self):
         f = QFile(self.local_qlr_filename)
         f.open(QIODevice.ReadOnly)
         return f.readAll()
-        
+
     def get_local_categories(self):
         local_categories = []
         groups_with_layers = self.qlr_file.get_groups_with_layers()
@@ -61,6 +60,3 @@ class LocalConfig:
     
     def get_maplayer_node(self, id):
          return self.qlr_file.get_maplayer_node(id)
-     
-
-        
